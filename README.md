@@ -106,11 +106,11 @@ goes back to restoring the configured value.
 | Profile | Hold | Ramp target | Rest | Exhaust | Materials |
 |---|---:|---:|---:|---:|---|
 | HOLD_120M_COOL_NO_EX | 120 min | 42°C | 0 | 0% | PA, PA6, PA6CF, PACF |
-| HOLD_60M_COOL_EX | 60 min | 42°C | 0 | 100% | ABS, ABSCF, ASA, ASACF, ASAGF, PA12 |
 | HOLD_30M_COOL_EX | 30 min | 42°C | 0 | 100% | none (use `PROFILE=`) |
+| HOLD_60M_COOL_EX | 60 min | 42°C | 0 | 100% | ABS, ABSCF, ASA, ASACF, ASAGF, PA12 |
+| IMMEDIATE_EX | 0 | none | 0 | 100% | PLA, PLA+, PLACF |
 | PASSIVE_ONLY | 0 | none | 0 | 0% | DEFAULT, PC, PCABS, PCABSCF, PCCF, PCTG, PETG, PETGCF, HIPS |
 | REST_5M_THEN_EX | 0 | none | 5 min | 100% | TPU72D, TPU90A, TPU95A |
-| IMMEDIATE_EX | 0 | none | 0 | 100% | PLA, PLA+, PLACF |
 
 Ramping profiles step 1°C every 120 seconds. Field meanings and limits are
 documented at the top of [`profiles.cfg`](profiles.cfg); START_COOLDOWN refuses a
