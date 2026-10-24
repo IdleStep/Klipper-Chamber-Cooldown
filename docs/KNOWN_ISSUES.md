@@ -35,7 +35,6 @@ baseline:
   (the idle gcode turns the fans and heaters off and calls `COOLDOWN_RESET`).
 - HIPS and PCTG keep their PASSIVE_ONLY fallback from Turbo's old retraction table.
   Changing intended profiles is separate work.
-
 - The print check reads `print_stats.state`, which only a file print sets (a
   printer without a `print_stats` object has no check). It replaced a test of
   `idle_timeout.state`, which can read `Printing` after a move, dwell or homing,
