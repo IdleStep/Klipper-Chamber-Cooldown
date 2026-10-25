@@ -5,6 +5,11 @@ parameters, a profile or material name, or a variable that a local override file
 (`chamber_cooled_temp`, the profile and material tables) changes incompatibly. Changes
 inside the engine and its messages are minor or patch releases.
 
+## Unreleased
+
+### Changed
+- SECURITY.md asks for a public issue instead of a private report.
+
 ## 2.0.0
 
 Requires Hardware Controls 1.0.0 or later. Upgrade steps are in
