@@ -21,6 +21,7 @@ COOLDOWN_MODULES = ['profiles', 'materials', 'engine']
 REQUIRED_HARDWARE_MODULES = ['settings', 'fans', 'chamber']
 HARDWARE_VARS = 'gcode_macro _HARDWARE_VARS'
 VARS = 'gcode_macro _COOLDOWN_VARS'
+SETTINGS = 'gcode_macro _COOLDOWN_SETTINGS'
 PROFILES = 'gcode_macro _COOLDOWN_PROFILES'
 MATERIALS = 'gcode_macro _COOLDOWN_MATERIALS'
 CHAMBER = 'heater_generic chamber'
@@ -192,7 +193,7 @@ class HardwareRoles(CooldownTestCase):
         printer = self.sensor_printer(temperature=50.)
         printer.run('START_COOLDOWN', PROFILE='IMMEDIATE_EX')
         self.run_until(printer, 5)
-        printer.state[VARS].chamber_cooled_temp = 30
+        printer.state[SETTINGS].chamber_cooled_temp = 30
         printer.run('_COOLDOWN_LOOP')
         self.assertEqual(printer.state[VARS].phase, 5)
         self.assertFalse(any('changed by hand' in command for command in printer.commands))
@@ -367,7 +368,7 @@ class Profiles(CooldownTestCase):
                     printer, 'cannot contain quote marks, semicolons, hash signs or asterisks')
                 self.assertEqual(len(refused), 1)
                 self.assertNotIn(';', refused[0].split('MSG=')[1])
-                printer.state[MATERIALS].filament_table['XX'] = name
+                printer.state[MATERIALS].materials['XX'] = name
                 printer.run('COOLDOWN_SELECT', MATERIAL='XX')
                 self.assertEqual(printer.state[VARS].cooldown_profile, 'PASSIVE_ONLY')
                 self.assertTrue(self.responded(printer, 'asterisk in its name'))
@@ -422,7 +423,7 @@ class Materials(CooldownTestCase):
 
     def test_unknown_material_uses_table_default(self):
         printer = Printer()
-        printer.state[MATERIALS].filament_table['DEFAULT'] = 'IMMEDIATE_EX'
+        printer.state[MATERIALS].materials['DEFAULT'] = 'IMMEDIATE_EX'
         printer.run('COOLDOWN_SELECT', MATERIAL='UNOBTAINIUM')
         self.assertEqual(printer.state[VARS].cooldown_profile, 'IMMEDIATE_EX')
 
@@ -452,7 +453,7 @@ class Materials(CooldownTestCase):
             with self.subTest(material=material, mapped=mapped):
                 printer = Printer()
                 printer.run('COOLDOWN_SELECT', MATERIAL='ASA')
-                printer.state[MATERIALS].filament_table[material] = mapped
+                printer.state[MATERIALS].materials[material] = mapped
                 printer.run('COOLDOWN_SELECT', MATERIAL=material)  # must not raise
                 # unchanged
                 self.assertEqual(printer.state[VARS].cooldown_profile, 'HOLD_60M_COOL_EX')
@@ -465,11 +466,11 @@ class Materials(CooldownTestCase):
             with self.subTest(table=broken):
                 printer = Printer()
                 printer.run('COOLDOWN_SELECT', MATERIAL='PLA')
-                printer.state[MATERIALS].filament_table = broken
+                printer.state[MATERIALS].materials = broken
                 printer.run('COOLDOWN_SELECT', MATERIAL='ASA')  # must not raise
                 self.assertEqual(printer.state[VARS].cooldown_profile, 'IMMEDIATE_EX')  # unchanged
                 refused = self.responses_containing(
-                    printer, 'filament_table in _COOLDOWN_MATERIALS must be a table')
+                    printer, 'materials in _COOLDOWN_MATERIALS must be a table')
                 self.assertEqual(len(refused), 1)
 
     def test_cooldown_select_during_a_run_leaves_the_running_profile_alone(self):
@@ -487,7 +488,7 @@ class Materials(CooldownTestCase):
 
     def test_cooldown_select_accepts_a_profile_in_any_case(self):
         printer = Printer()
-        printer.state[MATERIALS].filament_table['XX'] = 'hold_60m_cool_ex'
+        printer.state[MATERIALS].materials['XX'] = 'hold_60m_cool_ex'
         printer.run('COOLDOWN_SELECT', MATERIAL='XX')
         self.assertEqual(printer.state[VARS].cooldown_profile, 'hold_60m_cool_ex')
         printer.run('START_COOLDOWN')
@@ -504,14 +505,14 @@ class Materials(CooldownTestCase):
         for name in ["O'NEIL", 'A"B']:
             with self.subTest(name=name):
                 printer = Printer()
-                printer.state[MATERIALS].filament_table['XX'] = name
+                printer.state[MATERIALS].materials['XX'] = name
                 printer.run('COOLDOWN_SELECT', MATERIAL='XX')  # must not raise
                 self.assertEqual(printer.state[VARS].cooldown_profile, 'PASSIVE_ONLY')
                 self.assertTrue(self.responded(printer, 'quote mark'))
 
     def test_plain_profile_names_still_work(self):
         printer = Printer()
-        printer.state[MATERIALS].filament_table['XX'] = 'HOLD_60M_COOL_EX'
+        printer.state[MATERIALS].materials['XX'] = 'HOLD_60M_COOL_EX'
         printer.run('COOLDOWN_SELECT', MATERIAL='XX')
         self.assertEqual(printer.state[VARS].cooldown_profile, 'HOLD_60M_COOL_EX')
 
@@ -610,7 +611,7 @@ class Start(CooldownTestCase):
         for value in ['35', None, [35]]:
             with self.subTest(value=value):
                 printer = Printer()
-                printer.state[VARS].chamber_cooled_temp = value
+                printer.state[SETTINGS].chamber_cooled_temp = value
                 printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
                 self.assertEqual(printer.state[VARS].phase, 0)
                 self.assertFalse(self.sent(printer, 'SET_IDLE_TIMEOUT'))
@@ -629,6 +630,24 @@ class Start(CooldownTestCase):
         self.assertEqual(len(message), 1)
         self.assertIn('Known profiles: HOLD_120M_COOL_NO_EX, HOLD_30M_COOL_EX', message[0])
         self.assertNotIn(';', message[0])
+
+
+    def test_start_without_hardware_controls_says_to_install_it(self):
+        printer = Printer(hardware=False)
+        printer.state['configfile'] = wrap({'settings': {}})
+        printer.state['heater_generic chamber'] = wrap({'target': 55., 'temperature': 55.})
+        printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
+        self.assertEqual(printer.state[VARS].phase, 0)
+        self.assertTrue(self.responded(printer, 'Klipper-Hardware-Controls is not installed'))
+
+    def test_the_loop_ticks_every_loop_seconds_setting(self):
+        printer = Printer()
+        printer.state[SETTINGS].loop_seconds = 10
+        printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
+        self.assertEqual(printer.delays['_COOLDOWN_LOOP'], 10)
+        self.assertEqual(printer.state[VARS].hold_loops, 360)
+        printer.run('_COOLDOWN_LOOP')
+        self.assertEqual(printer.delays['_COOLDOWN_LOOP'], 10)
 
 
 class StatusAndReport(CooldownTestCase):
@@ -976,17 +995,22 @@ class Stops(CooldownTestCase):
         self.assertEqual(printer.state[VARS].phase, 0)
 
     def test_loop_stops_cleanly_on_invalid_state(self):
-        cases = [('chamber_cooled_temp', None), ('chamber_cooled_temp', '35'),
-                 ('hold_loops', 'abc'), ('ramp_step_loops', 'abc'),
-                 ('cooldown_ramp_step_c', 'abc'), ('ramp_chamber_target_temp', '42'),
-                 ('phase', 7), ('phase', -1), ('phase', 'abc')]
-        for var, value in cases:
+        cases = [(SETTINGS, 'chamber_cooled_temp', None), (SETTINGS, 'chamber_cooled_temp', '35'),
+                 (VARS, 'hold_loops', 'abc'), (VARS, 'ramp_step_loops', 'abc'),
+                 (VARS, 'cooldown_ramp_step_c', 'abc'), (VARS, 'cooldown_ramp_step_seconds', 'abc'),
+                 (VARS, 'exhaust_fan_speed', 'abc'), (VARS, 'ramp_chamber_target_temp', '42'),
+                 (VARS, 'phase', 7), (VARS, 'phase', -1), (VARS, 'phase', 'abc')]
+        for macro, var, value in cases:
             with self.subTest(var=var, value=value):
                 printer = Printer()
+                printer.state[CHAMBER].target = 62.
+                printer.state[BED].target = 100.
                 printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
-                printer.state[VARS][var] = value
+                printer.state[macro][var] = value
                 printer.run('_COOLDOWN_LOOP')  # must not raise
                 self.assertEqual(printer.state[VARS].phase, 0)
+                self.assertEqual(printer.state[CHAMBER].target, 0)
+                self.assertEqual(printer.state[BED].target, 0)
                 self.assertEqual(printer.delays['_COOLDOWN_LOOP'], 0)
                 self.assertEqual(printer.idle_timeout, 4800)
                 self.assertTrue(self.responded(printer, 'not valid'))
@@ -1000,6 +1024,19 @@ class Stops(CooldownTestCase):
         self.assertEqual(printer.state[VARS].phase, 0)
         self.assertEqual(printer.delays['_COOLDOWN_LOOP'], 0)
         self.assertTrue(self.responded(printer, 'cannot be read'))
+        self.assertTrue(self.responded(printer, 'The heaters are off'))
+
+    def test_loop_stops_cleanly_when_the_chamber_reading_disappears_and_turns_the_heaters_off(
+            self):
+        printer = Printer()
+        printer.state[CHAMBER].target = 62.
+        printer.state[BED].target = 100.
+        printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
+        printer.state[CHAMBER].temperature = None
+        printer.run('_COOLDOWN_LOOP')
+        self.assertEqual(printer.state[VARS].phase, 0)
+        self.assertEqual(printer.state[CHAMBER].target, 0)
+        self.assertEqual(printer.state[BED].target, 0)
 
     def test_print_check_uses_print_stats_not_idle_timeout(self):
         printer = Printer()

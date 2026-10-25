@@ -1,7 +1,7 @@
 ; START and each tick record the printer clock that COOLDOWN_STATUS compares, and RESET clears it.
 ; In batch mode the clock may read 0, so the script only checks that the tick and STATUS run.
 CHAMBER TEMP=55
-SET_GCODE_VARIABLE MACRO=_COOLDOWN_VARS VARIABLE=chamber_cooled_temp VALUE=-50
+SET_GCODE_VARIABLE MACRO=_COOLDOWN_SETTINGS VARIABLE=chamber_cooled_temp VALUE=-50
 START_COOLDOWN PROFILE=HOLD_60M_COOL_EX
 ASSERT_VAR MACRO=_COOLDOWN_VARS VARIABLE=phase VALUE=1
 TEST_COOLDOWN_TICK

@@ -1,4 +1,4 @@
-# Known issues and design decisions
+# Design decisions and known limits
 
 The migration preserved Turbo's five-phase implementation, defects included. The
 refinement pass that followed fixed them and deliberately diverges from that

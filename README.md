@@ -5,7 +5,7 @@ Material-selected five-phase chamber cooldown for Klipper and Kalico:
 profiles and the material map. It has no dependency on Klipper-Configs.
 
 Cooldown API: **version 1**. See the [changelog](CHANGELOG.md) and
-[known issues and design decisions](docs/KNOWN_ISSUES.md).
+[design decisions and known limits](docs/DESIGN.md).
 
 ## Install
 
@@ -38,9 +38,14 @@ The one user setting is the completion temperature, in
 [`examples/cooldown-local.cfg`](examples/cooldown-local.cfg):
 
 ```ini
-[gcode_macro _COOLDOWN_VARS]
+[gcode_macro _COOLDOWN_SETTINGS]
 variable_chamber_cooled_temp: 35
 ```
+
+`_COOLDOWN_SETTINGS` also holds the timing the engine is built on (`loop_seconds`,
+`report_minutes`, `status_seconds`, `stall_seconds`, `arrow_band`,
+`idle_margin_seconds`). Leave them unless you have a reason. The engine keeps its own
+progress in `_COOLDOWN_VARS`; never write that macro by hand.
 
 ## Commands
 
@@ -56,7 +61,7 @@ restarts.
 
 ## How a cooldown runs
 
-The loop runs every 5 seconds. Each tick either stops the cooldown, moves to
+The loop runs every 5 seconds (`loop_seconds`). Each tick either stops the cooldown, moves to
 the next phase, or advances the current one.
 
 | Phase | What happens | Ends when |
@@ -143,39 +148,33 @@ Add guarded calls to existing macros rather than replacing them, and never write
 {% endif %}
 ```
 
-## Messages
+## Troubleshooting
 
-| Message | Meaning |
+The phase banners, the progress lines and the temperature line (`Chamber → 041.0/042.0 • Bed →
+034.0/035.0 • Cycle 005`) are information. These messages say something happened that you may
+need to act on:
+
+| Message | What to do |
 |---|---|
-| `Cooldown started with profile: NAME` | START_COOLDOWN accepted the profile. |
-| `Ramp step of N s runs as M s because the loop ticks every 5 s` | The profile's `cooldown_ramp_step_seconds` is not a multiple of 5; it runs at the nearest multiple. |
-| `exhaust_fan_speed 0.05 is below the fan minimum, so these fans run at their minimum instead: exhaust_fan (0.2)` | The profile's fan speed is under the `min_power` (or `off_below`) of the listed fans, which run at that minimum. |
-| `Unknown material ASAA, using the DEFAULT profile PASSIVE_ONLY` | COOLDOWN_SELECT did not find the material in the table and selected the table's `DEFAULT`. |
-| `Material ASA maps to profile NAME, which is not in the profile table. Profile not changed.` | COOLDOWN_SELECT found a profile name in the material table that has no entry in the profile table (a typo in a local override), and left the selection as it was. |
-| `filament_table in _COOLDOWN_MATERIALS must be a table of material names and profile names. Profile not changed.` | A local override replaced the material table with something that is not a table. |
-| `A cooldown is running, so the material was not selected. Run COOLDOWN_RESET first to change it.` | COOLDOWN_SELECT was called while a cooldown was running and changed nothing. |
-| `A cooldown is already running (phase 1/5), so nothing was started. Run COOLDOWN_RESET first to start another.` | START_COOLDOWN was called while a cooldown was running and changed nothing. The running one keeps its profile, its phase and its timers. |
-| `The cooldown loop last ran 270 s ago. If the printer was not busy, it has stopped. Run COOLDOWN_RESET to clear it.` | COOLDOWN_STATUS found a phase running but no loop tick for over a minute, as after `UPDATE_DELAYED_GCODE ID=_COOLDOWN_LOOP DURATION=0`. A long homing or probing can cause it too. |
-| `Cooldown phase N/5 NAME: ...` | A phase started. `skipped` means the profile does not use it. Phase 4 says `fans to 1.0` when every fan gets the same speed, and `exhaust_fan to 0.2, external_pc to 0.1` when a fan minimum raises some of them. |
-| `Cooldown HOLD: 2.0 of 60.0 min`, `Cooldown RAMP: ...`, `Cooldown REST: ...`, `Cooldown CHILL: ...` | Phase progress, every 2 minutes. |
-| `Hold complete`, `Ramp target reached`, `Rest complete` | A phase finished. |
-| `No chamber heater, skipping hold and ramp`, `Chamber target ... is below the ramp target ..., skipping hold and ramp` | The cooldown goes from phase 1 straight to phase 3. Banner 2/5 still prints, as `RAMP: skipped, no hold or ramp to run`. |
-| `No exhaust, external_pc or bed_fans fan configured, skipping exhaust` | Phase 4 found none of the three fans to set. |
-| `Chamber → 041.0/042.0 • Bed → 034.0/035.0 • Cycle 005` | Temperatures at the start of each phase and every 25 s: reading / displayed target. The displayed target is the heater target or `chamber_cooled_temp`, whichever is higher. Arrows compare the reading with it: above (↑), within 2°C below (→), further below (↓). |
-| `Cooldown stopped: chamber, bed or fan settings were changed by hand (chamber target). The rest of the cooldown is cancelled and the heaters and fans stay as you set them.` | A tracked target or fan speed changed outside the cooldown. The brackets name what changed (chamber target, bed target, exhaust fan speed, bed fans speed). Turning the chamber heater off by hand ends the cooldown too, so no exhaust or chill phase follows. |
-| `Cooldown stopped: the printer started printing` | A print started (`print_stats.state` is `printing`) while the cooldown was running. |
-| `Unknown cooldown profile: NAME. Known profiles: HOLD_120M_COOL_NO_EX, ...` | Nothing was started; the message lists the valid names (a quote mark in the typed name is shown as `'`, a semicolon, hash sign or asterisk as `?`). |
-| `Invalid cooldown profile` | Nothing was started; the profile's values are wrong, and the message says which. |
-| `Invalid cooldown profile NAME: profile names cannot contain quote marks, semicolons, hash signs or asterisks. Cooldown not started.` | A profile in the table has a quote mark, `;`, `#` or `*` in its name (shown as `?`). Rename it (names are `A-Z`, `0-9` and `_`). |
-| `The profile for this material has a quote mark, semicolon, hash sign or asterisk in its name, which is not allowed. Profile not changed.` | COOLDOWN_SELECT found one of those characters in the profile name the material map points to, and left the selection as it was. |
-| `Invalid cooldown profile NAME: chamber_hold_minutes, exhaust_fan_speed must be numbers. Cooldown not started.` | A profile value is missing or is text; the message lists the keys. |
-| `chamber_cooled_temp in _COOLDOWN_VARS must be a number. Cooldown not started.` | The setting is text or empty; nothing was started. Fix it in `cooldown-local.cfg`. |
-| `chamber_sensor in _HARDWARE_VARS has no temperature. Cooldown not started.` (and the same for `bed_heater`) | The named object exists but is not a temperature device, so the name in `_HARDWARE_VARS` is wrong. |
-| `Cooldown stopped: the chamber or bed temperature cannot be read` | A tick found a reading that is not a number, and reset the cooldown. |
-| `Cooldown stopped: a value in _COOLDOWN_VARS is not valid` | A tick found a state value that is not a number, or a phase outside 1-5, and reset the cooldown. Something wrote to `_COOLDOWN_VARS` directly. |
-| `Bed heater turned off (its target was 100°C), the bed now cools with the chamber` | Phase 3 released a bed target that was still on. |
-| `Cooldown complete` | The chamber and bed heaters and all fans are off. |
-| `Cooldown reset` | COOLDOWN_RESET stopped a running cooldown, for example from PRINT_START or the idle timeout. Nothing is printed when no cooldown was running, and the cooldown's own stops print only their own message. |
+| `Klipper-Hardware-Controls is not installed. ... Cooldown not started.` | Install it and include its settings, fans and chamber modules (see Install). |
+| `Unknown cooldown profile: NAME. Known profiles: ...` | Nothing was started. Use one of the listed names. |
+| `Invalid cooldown profile NAME: ...` | Nothing was started. The profile's values are wrong; the message says which. |
+| `chamber_cooled_temp in _COOLDOWN_SETTINGS must be a number.` | Fix the value in `cooldown-local.cfg`. |
+| `chamber_sensor in _HARDWARE_VARS has no temperature.` (or `bed_heater`) | The name in `_HARDWARE_VARS` is not a temperature device. Fix it in `hardware-local.cfg`. |
+| `A cooldown is already running (phase N/5), so nothing was started.` | Run `COOLDOWN_RESET` first to start another. |
+| `A cooldown is running, so the material was not selected.` | Run `COOLDOWN_RESET` first to change it. |
+| `Unknown material ASAA, using the DEFAULT profile PASSIVE_ONLY` | The material is not in `_COOLDOWN_MATERIALS`; fix the spelling or add it. |
+| `Material ASA maps to profile NAME, which is not in the profile table.` | A local override maps a material to a profile that does not exist. The selection was not changed. |
+| `materials in _COOLDOWN_MATERIALS must be a table ...` | A local override replaced the material table with something that is not a table. |
+| `Ramp step of N s runs as M s because the loop ticks every 5 s` | The profile's step time is not a multiple of 5; it runs at the nearest one. |
+| `exhaust_fan_speed 0.05 is below the fan minimum, so these fans run at their minimum instead: ...` | The fan would not turn at that speed; it runs at its `min_power` or `off_below`. |
+| `Cooldown stopped: chamber, bed or fan settings were changed by hand (...)` | Heaters and fans stay as you set them; the rest of the cooldown is cancelled. |
+| `Cooldown stopped: the printer started printing` | A print started while the cooldown was running. |
+| `Cooldown stopped: a value in _COOLDOWN_VARS is not valid. The heaters are off.` | Something wrote to `_COOLDOWN_VARS` or a setting is not a number. The chamber and bed heaters were turned off. |
+| `Cooldown stopped: the chamber or bed temperature cannot be read. The heaters are off.` | Check the sensors. The chamber and bed heaters were turned off. |
+| `The cooldown loop last ran 270 s ago. ...` | The loop has stopped (or the printer was busy for a long time). Run `COOLDOWN_RESET`. |
+| `Bed heater turned off (its target was 100°C), the bed now cools with the chamber` | The rest phase released a bed target that was still on. |
+| `Cooldown complete` / `Cooldown reset` | Done, or stopped by `COOLDOWN_RESET` (from PRINT_START, the idle timeout or by hand). |
 
 ## Updates and rollback
 
@@ -204,6 +203,11 @@ python -m unittest discover -s tests -v
 
 CI also runs the suite against Hardware Controls 1.0.0. None of this replaces a
 real thermal run on the printer.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Report a safety problem as described in
+[SECURITY.md](SECURITY.md).
 
 ## Style
 

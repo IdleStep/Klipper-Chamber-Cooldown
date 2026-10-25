@@ -1,0 +1,14 @@
+name: Feature request
+description: A profile, phase or option the cooldown should support
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What you want to do
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Your chamber
+      description: Heater or only a sensor, which fans, and the material

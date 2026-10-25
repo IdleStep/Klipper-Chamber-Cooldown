@@ -1,0 +1,28 @@
+name: Bug report
+description: A cooldown does the wrong thing, stops, or prints an error
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Versions
+      description: Chamber Cooldown and Hardware Controls tags or commits, and whether it is Klipper or Kalico
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The console lines from START_COOLDOWN on, and the profile or material you used
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Your local files
+      description: hardware-local.cfg and cooldown-local.cfg, without anything private
