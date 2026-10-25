@@ -34,14 +34,14 @@ jobs:
             ref: 95c9773fd5890f88343055fa20147cef51e1e530
     name: templates (hardware ${{ matrix.hardware }})
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: IdleStep/Klipper-Hardware-Controls
           ref: ${{ env.HARNESS_REF }}
           path: hardware-controls
       - if: matrix.ref != ''
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: IdleStep/Klipper-Hardware-Controls
           ref: ${{ matrix.ref }}
@@ -69,13 +69,13 @@ jobs:
             ref: a6796621ef8abb905935a5b5c194a523a1d45a48
     name: klippy (${{ matrix.firmware }})
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: IdleStep/Klipper-Hardware-Controls
           ref: ${{ env.HARNESS_REF }}
           path: hardware-controls
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: ${{ matrix.repository }}
           ref: ${{ matrix.ref }}
