@@ -21,7 +21,7 @@ d8864740a9201492b0fb6dbfc61bc080c5fb13af.
   is installed, after its existing material fallback.
 - Print start calls COOLDOWN_RESET, print end and cancel call START_COOLDOWN,
   and the idle timeout and KlipperScreen call COOLDOWN_RESET.
-- The startup `disable_sensors` delayed gcode stays in Klipper-Configs' common
+- The startup `DISABLE_SENSORS` delayed gcode stays in Klipper-Configs' common
   macro file. The ENABLE_MOTION_SENSOR callback it schedules now lives in
   Hardware Controls and calls `MOTION_SENSOR ENABLE=1`; the 60-second schedule
   is unchanged.

@@ -164,7 +164,10 @@ Requires Hardware Controls 1.0.0 or later.
   `Klipper-Chamber-Cooldown/cooldown.cfg`. GitHub redirects the old URL.
 - The Moonraker example names its section after the repository:
   `[update_manager Klipper-Chamber-Cooldown]`.
-- Code, comments, tests, README and docs tidied, with no behavior change.
+- Code, comments, tests and docs tidied, with no behavior change. Conventions are in
+  Hardware Controls' `docs/STYLE.md`.
+- The two skip messages (`No chamber heater, skipping hold and ramp` and the
+  `below the ramp target` line) use the note emoji instead of a lone arrow.
 - Tests use Hardware Controls' shared harness, lint the configs, run in real
   Klipper and Kalico, and run against Hardware Controls 1.0.0.
 

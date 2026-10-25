@@ -106,21 +106,23 @@ goes back to restoring the configured value.
 | Profile | Hold | Ramp target | Rest | Exhaust | Materials |
 |---|---:|---:|---:|---:|---|
 | HOLD_120M_COOL_NO_EX | 120 min | 42°C | 0 | 0% | PA, PA6, PA6CF, PACF |
-| HOLD_60M_COOL_EX | 60 min | 42°C | 0 | 100% | ABS, ABSCF, ASA, ASACF, ASAGF, PA12 |
 | HOLD_30M_COOL_EX | 30 min | 42°C | 0 | 100% | none (use `PROFILE=`) |
+| HOLD_60M_COOL_EX | 60 min | 42°C | 0 | 100% | ABS, ABSCF, ASA, ASACF, ASAGF, PA12 |
+| IMMEDIATE_EX | 0 | none | 0 | 100% | PLA, PLA+, PLACF |
 | PASSIVE_ONLY | 0 | none | 0 | 0% | DEFAULT, PC, PCABS, PCABSCF, PCCF, PCTG, PETG, PETGCF, HIPS |
 | REST_5M_THEN_EX | 0 | none | 5 min | 100% | TPU72D, TPU90A, TPU95A |
-| IMMEDIATE_EX | 0 | none | 0 | 100% | PLA, PLA+, PLACF |
 
 Ramping profiles step 1°C every 120 seconds. Field meanings and limits are
-documented at the top of [`profiles.cfg`](profiles.cfg); START_COOLDOWN refuses a
-ramp step under 0.1°C (a ramp needs one), a step time under 5 seconds, negative times, a
-negative ramp target, or an exhaust speed outside 0.0 to 1.0. It also refuses a profile whose values are
-missing or are not numbers (a value in quotes is text), and honors fractional
-minutes (a 0.5 minute hold is 30 seconds). Because the loop ticks every 5
-seconds, a ramp step time is rounded to the nearest 5 seconds (5 is the
-minimum) and START_COOLDOWN says so; the banner and the idle-timeout estimate
-use the rounded time. The material map keeps Turbo's effective
+documented at the top of [`profiles.cfg`](profiles.cfg).
+
+START_COOLDOWN refuses a ramp step under 0.1°C (a ramp needs one), a step time under
+5 seconds, negative times, a negative ramp target and an exhaust speed outside 0.0 to
+1.0. It also refuses a profile whose values are missing or are not numbers (a value
+in quotes is text). Fractional minutes are honored (a 0.5 minute hold is 30 seconds).
+
+The loop ticks every 5 seconds, so a ramp step time is rounded to the nearest 5
+seconds (5 is the minimum) and START_COOLDOWN says so; the banner and the
+idle-timeout estimate use the rounded time. The material map keeps Turbo's effective
 behavior, including HIPS and PCTG falling back to PASSIVE_ONLY.
 
 ## Integrating with print macros
@@ -202,3 +204,13 @@ python -m unittest discover -s tests -v
 
 CI also runs the suite against Hardware Controls 1.0.0. None of this replaces a
 real thermal run on the printer.
+
+## Style
+
+Conventions for the config files, messages and tests, shared with
+Klipper-Hardware-Controls and Klipper-Configs, are in
+[Hardware Controls' docs/STYLE.md](https://github.com/IdleStep/Klipper-Hardware-Controls/blob/main/docs/STYLE.md).
+
+## License
+
+GPL-3.0.
