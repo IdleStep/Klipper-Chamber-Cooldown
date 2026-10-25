@@ -1,5 +1,5 @@
 ; A profile name is accepted in any case; an unknown one is refused with a message.
-SET_GCODE_VARIABLE MACRO=_COOLDOWN_VARS VARIABLE=chamber_cooled_temp VALUE=-50
+SET_GCODE_VARIABLE MACRO=_COOLDOWN_SETTINGS VARIABLE=chamber_cooled_temp VALUE=-50
 START_COOLDOWN PROFILE=immediate_ex
 ASSERT_VAR MACRO=_COOLDOWN_VARS VARIABLE=phase VALUE=1
 ASSERT_VAR MACRO=_COOLDOWN_VARS VARIABLE=cooldown_profile VALUE=IMMEDIATE_EX

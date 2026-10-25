@@ -1,6 +1,6 @@
 ; COOLDOWN_RESET works with and without a running cooldown, and with QUIET=1.
 ; The script cannot read the console, so it checks only that each reset stops the cooldown.
-SET_GCODE_VARIABLE MACRO=_COOLDOWN_VARS VARIABLE=chamber_cooled_temp VALUE=-50
+SET_GCODE_VARIABLE MACRO=_COOLDOWN_SETTINGS VARIABLE=chamber_cooled_temp VALUE=-50
 COOLDOWN_RESET
 ASSERT_VAR MACRO=_COOLDOWN_VARS VARIABLE=phase VALUE=0
 START_COOLDOWN PROFILE=HOLD_60M_COOL_EX

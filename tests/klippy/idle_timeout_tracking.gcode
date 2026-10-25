@@ -1,6 +1,6 @@
 ; idle_timeout_tracking.cfg renames SET_IDLE_TIMEOUT, which only real firmware can check.
 ; The script cannot read the timeout in force, so it checks the variables the wrapper keeps.
-SET_GCODE_VARIABLE MACRO=_COOLDOWN_VARS VARIABLE=chamber_cooled_temp VALUE=-50
+SET_GCODE_VARIABLE MACRO=_COOLDOWN_SETTINGS VARIABLE=chamber_cooled_temp VALUE=-50
 SET_IDLE_TIMEOUT TIMEOUT=2000
 ASSERT_VAR MACRO=_COOLDOWN_VARS VARIABLE=user_idle_timeout VALUE=2000.0
 CHAMBER TEMP=55

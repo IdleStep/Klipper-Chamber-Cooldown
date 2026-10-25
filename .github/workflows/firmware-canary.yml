@@ -1,0 +1,60 @@
+name: Firmware canary
+
+# Runs the real-firmware tests against the newest Klipper and Kalico once a week, so a
+# firmware change that breaks the macros shows up before a user hits it. The regular
+# workflow stays pinned to the revisions it was written for. Run it by hand from the
+# Actions tab with "Run workflow".
+on:
+  schedule:
+    - cron: '43 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  klippy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - firmware: klipper
+            repository: Klipper3d/klipper
+            ref: master
+          - firmware: kalico
+            repository: KalicoCrew/kalico
+            ref: main
+    name: klippy (${{ matrix.firmware }} ${{ matrix.ref }})
+    steps:
+      - uses: actions/checkout@v4
+      # The newest Hardware Controls too: this is what a new user installs.
+      - uses: actions/checkout@v4
+        with:
+          repository: IdleStep/Klipper-Hardware-Controls
+          ref: main
+          path: hardware-controls
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.repository }}
+          ref: ${{ matrix.ref }}
+          path: .firmware
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build linux process MCU dictionary
+        run: |
+          cp .firmware/test/configs/linuxprocess.config .firmware/.config
+          make -C .firmware olddefconfig
+          make -C .firmware -j4
+      - name: Install requirements
+        run: |
+          pip install -r requirements-test.txt
+          python -m venv .klippy-env
+          .klippy-env/bin/pip install -r .firmware/scripts/klippy-requirements.txt
+      - run: python -m unittest discover -s tests -p test_klippy.py -v
+        env:
+          KLIPPER_DIR: .firmware
+          KLIPPY_DICT: .firmware/out/klipper.dict
+          KLIPPY_PYTHON: .klippy-env/bin/python
+          KLIPPY_REQUIRED: '1'
