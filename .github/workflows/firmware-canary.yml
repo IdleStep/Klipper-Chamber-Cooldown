@@ -27,14 +27,14 @@ jobs:
             ref: main
     name: klippy (${{ matrix.firmware }} ${{ matrix.ref }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # The newest Hardware Controls too: this is what a new user installs.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: IdleStep/Klipper-Hardware-Controls
           ref: main
           path: hardware-controls
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: ${{ matrix.repository }}
           ref: ${{ matrix.ref }}
