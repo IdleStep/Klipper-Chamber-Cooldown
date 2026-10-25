@@ -46,7 +46,7 @@ jobs:
           repository: IdleStep/Klipper-Hardware-Controls
           ref: ${{ matrix.ref }}
           path: .hardware-under-test
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - run: pip install -r requirements-test.txt
@@ -80,7 +80,7 @@ jobs:
           repository: ${{ matrix.repository }}
           ref: ${{ matrix.ref }}
           path: .firmware
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Build linux process MCU dictionary
