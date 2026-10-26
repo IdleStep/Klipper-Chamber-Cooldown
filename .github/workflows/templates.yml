@@ -14,10 +14,10 @@ concurrency:
   cancel-in-progress: true
 
 # Hardware Controls supplies the test harness (tests/klipper_sim.py,
-# config_lint.py, klippy_batch.py). Pinned so a change there cannot break this
-# repository's checks unannounced; bump HARNESS_REF when updating.
+# config_lint.py, klippy_batch.py). Taken from its latest main, so a change there that
+# breaks these checks shows up here at once. The oldest supported release is pinned below.
 env:
-  HARNESS_REF: 8179089dc9dee1e7e3d90c70d9a98cbcfa0c88d6
+  HARNESS_REF: main
 
 jobs:
   templates:

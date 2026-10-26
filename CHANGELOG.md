@@ -9,6 +9,8 @@ inside the engine and its messages are minor or patch releases.
 
 ### Changed
 - SECURITY.md asks for a public issue instead of a private report.
+- The checks take the test harness from the latest `main` of Hardware Controls instead of a
+  pinned commit. The oldest supported release and the firmware revisions stay pinned.
 
 ## 2.0.0
 
