@@ -8,6 +8,10 @@ inside the engine and its messages are minor or patch releases.
 ## Unreleased
 
 ### Changed
+- The install steps and the checks follow Hardware Controls 2.0.0, where `settings.cfg` is
+  `hardware_names.cfg` and the roles are off until a printer's `hardware-local.cfg` names
+  its devices. Cooldown itself is unchanged and still works with Hardware Controls from
+  1.0.0 on.
 - SECURITY.md asks for a public issue instead of a private report.
 - The checks take the test harness from the latest `main` of Hardware Controls instead of a
   pinned commit. The oldest supported release and the firmware revisions stay pinned.
