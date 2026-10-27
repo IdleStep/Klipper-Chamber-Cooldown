@@ -7,6 +7,10 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-10-27
+
+Requires Hardware Controls 2.0.0 or later.
+
 ### Fixed
 - `START_COOLDOWN` refuses settings the loop would divide by or choke on: an `arrow_band`,
   `idle_margin_seconds`, `loop_seconds`, `report_minutes`, `status_seconds` or `stall_seconds`
@@ -229,7 +233,8 @@ Requires Hardware Controls 1.0.0 or later.
 
 Turbo's five-phase cooldown migrated from Klipper-Configs, behavior preserved.
 
-[Unreleased]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v1.1.0...v2.0.0
 [1.1.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/tree/v1.0.0
