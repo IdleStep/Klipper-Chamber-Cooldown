@@ -10,12 +10,12 @@ Cooldown API: **version 1**. See the [changelog](CHANGELOG.md) and
 ## Install
 
 Requires [Klipper-Hardware-Controls](https://github.com/IdleStep/Klipper-Hardware-Controls)
-API 1 (its settings, fans and chamber modules) and `[respond]`. Device
+1.0.0 or later (its names, fans and chamber modules) and `[respond]`. Device
 definitions stay in your printer configuration. Clone both repositories under
 `~/printer_data/config`, then include each module once:
 
 ```ini
-[include Klipper-Hardware-Controls/settings.cfg]
+[include Klipper-Hardware-Controls/hardware_names.cfg]
 [include Klipper-Hardware-Controls/fans.cfg]
 [include Klipper-Hardware-Controls/chamber.cfg]
 [include hardware-local.cfg]
@@ -23,7 +23,10 @@ definitions stay in your printer configuration. Clone both repositories under
 [include cooldown-local.cfg]
 ```
 
-Hardware Controls' `hardware.cfg` can replace its three individual modules.
+Hardware Controls' `hardware.cfg` can replace its three individual modules. Before its
+2.0.0 the names file is `settings.cfg`, and from 2.0.0 a role is off until your
+`hardware-local.cfg` names the device, so Cooldown needs the chamber and fan roles set
+there.
 Local override files live outside both checkouts and load after the defaults.
 
 ## Configuration
@@ -182,7 +185,7 @@ Add [`examples/moonraker.conf`](examples/moonraker.conf) to `moonraker.conf`. It
 follows tagged releases (`channel: stable`); use `channel: dev` to follow `main`.
 Update while the printer is idle, keep overrides outside the checkout and record
 the tested revisions of both repositories per printer. Cooldown API 1 works with
-Hardware Controls API 1 from 1.0.0 on. Migration from the Klipper-Configs
+Hardware Controls from 1.0.0 on. Migration from the Klipper-Configs
 cooldown is in [docs/MIGRATION.md](docs/MIGRATION.md).
 
 ## Tests

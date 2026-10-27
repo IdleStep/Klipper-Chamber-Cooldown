@@ -18,7 +18,7 @@ from klipper_sim import State, wrap  # noqa: E402,F401  (re-exported for Klipper
 
 COOLDOWN_MODULES = ['profiles', 'materials', 'engine']
 # What README says cooldown needs from Hardware Controls.
-REQUIRED_HARDWARE_MODULES = ['settings', 'fans', 'chamber']
+REQUIRED_HARDWARE_MODULES = ['hardware_names', 'fans', 'chamber']
 HARDWARE_VARS = 'gcode_macro _HARDWARE_VARS'
 VARS = 'gcode_macro _COOLDOWN_VARS'
 SETTINGS = 'gcode_macro _COOLDOWN_SETTINGS'
@@ -130,7 +130,8 @@ class HardwareRoles(CooldownTestCase):
     def test_runs_with_only_required_hardware_modules(self):
         printer = Printer(hardware=False, cooldown=False)
         for name in REQUIRED_HARDWARE_MODULES:
-            printer.load(klipper_sim.HW_ROOT / (name + '.cfg'))
+            printer.load(klipper_sim.module_path(name))
+        printer.load(klipper_sim.HARDWARE_LOCAL)
         for name in COOLDOWN_MODULES:
             printer.load(ROOT / (name + '.cfg'))
         printer.run('START_COOLDOWN', PROFILE='IMMEDIATE_EX')
