@@ -9,6 +9,8 @@ inside the engine and its messages are minor or patch releases.
 
 ## [2.1.0] - 2026-10-27
 
+Requires Hardware Controls 2.0.0 or later.
+
 ### Fixed
 - `START_COOLDOWN` refuses settings the loop would divide by or choke on: an `arrow_band`,
   `idle_margin_seconds`, `loop_seconds`, `report_minutes`, `status_seconds` or `stall_seconds`
