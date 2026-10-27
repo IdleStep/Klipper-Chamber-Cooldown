@@ -25,4 +25,4 @@ body:
     id: config
     attributes:
       label: Your local files
-      description: hardware-local.cfg and cooldown-local.cfg, without anything private
+      description: hardware_names.cfg and cooldown-local.cfg, without anything private
