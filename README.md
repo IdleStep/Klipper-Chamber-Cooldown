@@ -4,7 +4,7 @@ Material-selected five-phase chamber cooldown for Klipper and Kalico:
 **hold → ramp → rest → exhaust → chill**. This repository owns the engine, six
 profiles and the material map. It has no dependency on Klipper-Configs.
 
-Cooldown API: **version 1**. See the [changelog](CHANGELOG.md) and
+Cooldown API: **version 2**. See the [changelog](CHANGELOG.md) and
 [design decisions and known limits](docs/DESIGN.md).
 
 ## Install
@@ -183,7 +183,7 @@ need to act on:
 Add [`examples/moonraker.conf`](examples/moonraker.conf) to `moonraker.conf`. It
 follows tagged releases (`channel: stable`); use `channel: dev` to follow `main`.
 Update while the printer is idle, keep overrides outside the checkout and record
-the tested revisions of both repositories per printer. Cooldown API 1 works with
+the tested revisions of both repositories per printer. Cooldown API 2 works with
 Hardware Controls from 2.0.0 on. Migration from the Klipper-Configs
 cooldown is in [docs/MIGRATION.md](docs/MIGRATION.md).
 
