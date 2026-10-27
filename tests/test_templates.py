@@ -620,6 +620,39 @@ class Start(CooldownTestCase):
                     'chamber_cooled_temp' in command and 'must be a number' in command
                     for command in self.responses(printer)))
 
+    def test_a_setting_that_would_break_the_loop_is_refused_at_start(self):
+        cases = [
+            ({'status_seconds': 0}, 'status_seconds, stall_seconds and report_minutes times 60'),
+            ({'report_minutes': 0}, 'status_seconds, stall_seconds and report_minutes times 60'),
+            ({'stall_seconds': 1}, 'status_seconds, stall_seconds and report_minutes times 60'),
+            ({'loop_seconds': 0}, 'loop_seconds must be a whole number of 1 or more'),
+            ({'loop_seconds': -5}, 'loop_seconds must be a whole number of 1 or more'),
+            ({'loop_seconds': 2.5}, 'loop_seconds must be a whole number of 1 or more'),
+            ({'arrow_band': 'x'}, 'arrow_band must be numbers'),
+            ({'arrow_band': -1}, 'arrow_band and idle_margin_seconds must be 0 or more'),
+            ({'idle_margin_seconds': -1}, 'arrow_band and idle_margin_seconds must be 0 or more'),
+            ({'status_seconds': None, 'report_minutes': 'abc'},
+             'report_minutes, status_seconds must be numbers')]
+        for changes, expected in cases:
+            with self.subTest(**changes):
+                printer = Printer()
+                for key, value in changes.items():
+                    setattr(printer.state[SETTINGS], key, value)
+                printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
+                self.assertEqual(printer.state[VARS].phase, 0)
+                self.assertNotIn('_COOLDOWN_LOOP', printer.delays)
+                self.assertFalse(self.sent(printer, 'SET_IDLE_TIMEOUT'))
+                self.assertFalse(self.sent(printer, 'SET_HEATER_TEMPERATURE'))
+                message = self.responses_containing(printer, 'Invalid _COOLDOWN_SETTINGS: ')
+                self.assertEqual(len(message), 1)
+                self.assertIn(expected, message[0])
+                self.assertTrue(message[0].endswith('Cooldown not started."'))
+
+    def test_the_settings_it_ships_with_start_a_cooldown(self):
+        printer = Printer()
+        printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
+        self.assertEqual(printer.state[VARS].phase, 1)
+
     def test_profile_name_in_any_case_and_known_profiles_listed(self):
         printer = Printer()
         printer.run('START_COOLDOWN', PROFILE='immediate_ex')

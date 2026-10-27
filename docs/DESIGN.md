@@ -1,19 +1,21 @@
 # Design decisions and known limits
 
-The migration preserved Turbo's five-phase implementation, defects included. The
-refinement pass that followed fixed them and deliberately diverges from that
-baseline:
+## What the tests pin down
 
-| Former defect | Resolution |
-|---|---|
-| Skipping hold/ramp (and the PASSIVE_ONLY, REST_5M_THEN_EX and IMMEDIATE_EX profiles) left the chamber heater target active, so phase 5 could never complete | Every path into phase 3 sets `CHAMBER TEMP=0`; completion does too |
-| Phase-skip transitions and loop increments overwrote one another | Each tick performs one transition or one increment; every transition goes through `_COOLDOWN_ENTER_PHASE` |
-| `idle_timeout` (4800 s on Turbo) ended 120-minute holds and long 60-minute ramps | START_COOLDOWN raises the idle timeout to cover hold, ramp and rest when needed and restores the configured value on phase 3, completion or reset |
-| Passive rest did not force exhaust off | Phase 3 entry sets `EXHAUST_FAN SPEED=0` when the rest is longer than 0 |
-| `exhaust_enable` was ignored | `exhaust_enable: False` runs phase 4 at speed 0 (a missing key counts as True) |
-| Invalid ramp timing could hold the heater forever; out-of-range exhaust speed stopped the loop mid-run; ramp steps could overshoot | START_COOLDOWN refuses invalid profiles; steps never go below the ramp target |
-| Reporting used an undefined `c` test | Both arrows compare readings with the displayed target |
-| A text or empty `chamber_cooled_temp` was accepted; the first tick then raised, and Klipper does not reschedule a delayed gcode that raises, so the cooldown sat in its phase with the heater on until the idle timeout ended it | START_COOLDOWN refuses a `chamber_cooled_temp` that is not a number; a tick that finds a non-numeric state value or a phase outside 1-5 stops the cooldown with a message |
+- Every path into phase 3 turns the chamber heater off, and so does completion, so no profile
+  can finish with the heater still on.
+- Each tick performs one transition or one increment, and every transition goes through
+  `_COOLDOWN_ENTER_PHASE`.
+- START_COOLDOWN raises the idle timeout to cover hold, ramp and rest when needed and puts the
+  configured value back on phase 3, completion or reset.
+- Entering phase 3 turns the exhaust fan off when the rest is longer than 0, and
+  `exhaust_enable: False` runs phase 4 at speed 0 (a missing key counts as True).
+- START_COOLDOWN refuses an invalid profile and invalid settings (a value that is not a number,
+  a `loop_seconds` below 1) instead of starting a loop that would raise. Ramp steps never go
+  below the ramp target.
+- A tick that finds a non-numeric state value or a phase outside 1-5 stops the cooldown, turns
+  the heaters off and says so.
+- Both report arrows compare readings with the displayed target.
 
 ## By design
 

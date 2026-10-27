@@ -5,9 +5,21 @@ parameters, a profile or material name, or a variable that a local override file
 (`chamber_cooled_temp`, the profile and material tables) changes incompatibly. Changes
 inside the engine and its messages are minor or patch releases.
 
-## Unreleased
+## [Unreleased]
+
+### Fixed
+- `START_COOLDOWN` refuses settings the loop would divide by or choke on: an `arrow_band`,
+  `idle_margin_seconds`, `loop_seconds`, `report_minutes`, `status_seconds` or `stall_seconds`
+  that is not a number, a `loop_seconds` below 1 or not whole, a negative `arrow_band` or
+  `idle_margin_seconds`, and a `status_seconds`, `stall_seconds` or `report_minutes` times 60
+  below `loop_seconds`. They used to start the cooldown (raising the idle timeout and keeping
+  the heater at its hold target), and the first tick raised `ZeroDivisionError`, which stops a
+  delayed gcode for good. It says `Invalid _COOLDOWN_SETTINGS: ...` and starts nothing.
 
 ### Changed
+- The README says Cooldown API 2, as the release is 2.0.0. `docs/DESIGN.md` opens with what the
+  tests pin down instead of a table of former defects, and the CHANGELOG has one Changed heading
+  per version, dates and compare links.
 - The README requires Hardware Controls 2.0.0 or later, where the roles are off until a
   printer's own copy of `hardware_names.cfg` names its devices, and the install steps follow.
   Cooldown itself is unchanged. The checks also run against Hardware Controls 2.0.0 instead of 1.0.0.
@@ -15,29 +27,18 @@ inside the engine and its messages are minor or patch releases.
 - The checks take the test harness from the latest `main` of Hardware Controls instead of a
   pinned commit. The oldest supported release and the firmware revisions stay pinned.
 
-## 2.0.0
+## [2.0.0] - 2026-10-25
 
 Requires Hardware Controls 1.0.0 or later. Upgrade steps are in
 [docs/MIGRATION.md](docs/MIGRATION.md).
 
-### Changed (breaking)
-- `chamber_cooled_temp` moved from `_COOLDOWN_VARS` to the new `_COOLDOWN_SETTINGS`.
+### Changed
+- Breaking: `chamber_cooled_temp` moved from `_COOLDOWN_VARS` to the new `_COOLDOWN_SETTINGS`.
   `_COOLDOWN_VARS` is now only the engine's own state.
-- The material table variable `filament_table` of `_COOLDOWN_MATERIALS` is now
+- Breaking: the material table variable `filament_table` of `_COOLDOWN_MATERIALS` is now
   `materials`. A local file that still sets the old names is ignored without an error.
   1.1.0 renamed the profile table the same way; under the rule above that was a
   major version too.
-
-### Fixed
-- A cooldown that stops because a state value is invalid or a chamber or bed
-  temperature cannot be read now turns the chamber and bed heaters off, and says so
-  (`The heaters are off.`). It used to leave the heater at its hold target.
-- The loop checks `exhaust_fan_speed` and `cooldown_ramp_step_seconds` along with the
-  other numbers it needs.
-- `START_COOLDOWN` says `Klipper-Hardware-Controls is not installed` instead of
-  failing with a template error.
-
-### Changed
 - The timing the engine is built on is set in `_COOLDOWN_SETTINGS`: `loop_seconds`,
   `report_minutes`, `status_seconds`, `stall_seconds`, `arrow_band` and
   `idle_margin_seconds`. The defaults are the old values (5 s, 2 min, 25 s, 60 s,
@@ -48,7 +49,16 @@ Requires Hardware Controls 1.0.0 or later. Upgrade steps are in
   an action. `docs/KNOWN_ISSUES.md` is `docs/DESIGN.md`, and `docs/MIGRATION.md`
   covers upgrading and no longer carries the migration's working notes.
 
-## 1.1.0
+### Fixed
+- A cooldown that stops because a state value is invalid or a chamber or bed
+  temperature cannot be read now turns the chamber and bed heaters off, and says so
+  (`The heaters are off.`). It used to leave the heater at its hold target.
+- The loop checks `exhaust_fan_speed` and `cooldown_ramp_step_seconds` along with the
+  other numbers it needs.
+- `START_COOLDOWN` says `Klipper-Hardware-Controls is not installed` instead of
+  failing with a template error.
+
+## [1.1.0] - 2026-10-25
 
 Requires Hardware Controls 1.0.0 or later.
 
@@ -215,6 +225,11 @@ Requires Hardware Controls 1.0.0 or later.
 - Tests use Hardware Controls' shared harness, lint the configs, run in real
   Klipper and Kalico, and run against Hardware Controls 1.0.0.
 
-## 1.0.0
+## [1.0.0] - 2026-10-25
 
 Turbo's five-phase cooldown migrated from Klipper-Configs, behavior preserved.
+
+[Unreleased]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v1.1.0...v2.0.0
+[1.1.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/tree/v1.0.0
