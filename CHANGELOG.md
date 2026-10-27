@@ -10,7 +10,7 @@ inside the engine and its messages are minor or patch releases.
 ### Changed
 - The README requires Hardware Controls 2.0.0 or later, where the roles are off until a
   printer's own copy of `hardware_names.cfg` names its devices, and the install steps follow.
-  Cooldown itself is unchanged. The checks still run against an older Hardware Controls too.
+  Cooldown itself is unchanged. The checks also run against Hardware Controls 2.0.0 instead of 1.0.0.
 - SECURITY.md asks for a public issue instead of a private report.
 - The checks take the test harness from the latest `main` of Hardware Controls instead of a
   pinned commit. The oldest supported release and the firmware revisions stay pinned.
