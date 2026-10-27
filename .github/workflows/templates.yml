@@ -29,7 +29,7 @@ jobs:
           # Hardware Controls configs from the harness revision.
           - hardware: harness
             ref: ''
-          # Oldest supported release (API 1.0.0): README promises it still works.
+          # An older release: Cooldown reads only _HARDWARE_VARS, so it should keep working.
           - hardware: api-1.0.0
             ref: 95c9773fd5890f88343055fa20147cef51e1e530
     name: templates (hardware ${{ matrix.hardware }})
