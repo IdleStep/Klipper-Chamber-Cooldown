@@ -203,7 +203,7 @@ python -m unittest discover -s tests -v
   without hardware; it is skipped unless `KLIPPER_DIR`, `KLIPPY_DICT` and
   `KLIPPY_PYTHON` are set (see the CI workflow).
 
-CI also runs the suite against Hardware Controls 1.0.0. None of this replaces a
+CI also runs the suite against Hardware Controls 2.0.0. None of this replaces a
 real thermal run on the printer.
 
 ## Contributing

@@ -15,7 +15,7 @@ concurrency:
 
 # Hardware Controls supplies the test harness (tests/klipper_sim.py,
 # config_lint.py, klippy_batch.py). Taken from its latest main, so a change there that
-# breaks these checks shows up here at once. The oldest supported release is pinned below.
+# breaks these checks shows up here at once. The oldest supported release, 2.0.0, is pinned below.
 env:
   HARNESS_REF: main
 
@@ -29,9 +29,9 @@ jobs:
           # Hardware Controls configs from the harness revision.
           - hardware: harness
             ref: ''
-          # An older release: Cooldown reads only _HARDWARE_VARS, so it should keep working.
-          - hardware: api-1.0.0
-            ref: 95c9773fd5890f88343055fa20147cef51e1e530
+          # The oldest supported release: the README requires 2.0.0 or later.
+          - hardware: api-2.0.0
+            ref: v2.0.0
     name: templates (hardware ${{ matrix.hardware }})
     steps:
       - uses: actions/checkout@v7
