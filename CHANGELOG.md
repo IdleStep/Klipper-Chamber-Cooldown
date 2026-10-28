@@ -7,9 +7,15 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-10-28
+
+Requires Hardware Controls 2.0.0 or later.
+
 ### Changed
 - Tests: `tests/test_templates.py` (1259 lines, 98 tests) is split into one file per topic; it
   keeps the shared simulated printer and helpers, which Klipper-Configs imports. No test changed.
+- A description in `idle_timeout_tracking.cfg` and a comment in `profiles.cfg` fit in 100
+  columns, as the shared lint now checks.
 
 ### Fixed
 - The refusal for a setting or profile value that is not a number reads correctly for one key
@@ -242,7 +248,8 @@ Requires Hardware Controls 1.0.0 or later.
 
 Turbo's five-phase cooldown migrated from Klipper-Configs, behavior preserved.
 
-[Unreleased]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.1.1...HEAD
+[2.1.1]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v1.1.0...v2.0.0
 [1.1.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v1.0.0...v1.1.0
