@@ -7,6 +7,10 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+### Changed
+- Tests: `tests/test_templates.py` (1259 lines, 98 tests) is split into one file per topic; it
+  keeps the shared simulated printer and helpers, which Klipper-Configs imports. No test changed.
+
 ### Fixed
 - The refusal for a setting or profile value that is not a number reads correctly for one key
   (`arrow_band must be a number`) and for several (`report_minutes, status_seconds must each be

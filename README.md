@@ -197,7 +197,11 @@ pip install -r requirements-test.txt
 python -m unittest discover -s tests -v
 ```
 
-- `tests/test_templates.py` simulates every profile and phase path.
+- The simulator tests are split by topic: `tests/test_hardware_roles.py`, `test_profiles.py`,
+  `test_materials.py`, `test_start.py`, `test_status_and_report.py`, `test_reset.py`,
+  `test_phases.py`, `test_stops.py` and `test_idle_timeout_tracking.py`. Run one with
+  `python -m unittest discover -s tests -p test_phases.py`. `tests/test_templates.py` holds what
+  they share (the simulated printer and helpers); Klipper-Configs imports it.
 - `tests/test_config_lint.py` checks the config files.
 - `tests/test_klippy.py` runs `tests/klippy/*.gcode` in real Klipper and Kalico
   without hardware; it is skipped unless `KLIPPER_DIR`, `KLIPPY_DICT` and
