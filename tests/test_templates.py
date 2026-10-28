@@ -628,11 +628,11 @@ class Start(CooldownTestCase):
             ({'loop_seconds': 0}, 'loop_seconds must be a whole number of 1 or more'),
             ({'loop_seconds': -5}, 'loop_seconds must be a whole number of 1 or more'),
             ({'loop_seconds': 2.5}, 'loop_seconds must be a whole number of 1 or more'),
-            ({'arrow_band': 'x'}, 'arrow_band must be numbers'),
+            ({'arrow_band': 'x'}, 'arrow_band must be a number'),
             ({'arrow_band': -1}, 'arrow_band and idle_margin_seconds must be 0 or more'),
             ({'idle_margin_seconds': -1}, 'arrow_band and idle_margin_seconds must be 0 or more'),
             ({'status_seconds': None, 'report_minutes': 'abc'},
-             'report_minutes, status_seconds must be numbers')]
+             'report_minutes, status_seconds must each be a number')]
         for changes, expected in cases:
             with self.subTest(**changes):
                 printer = Printer()
