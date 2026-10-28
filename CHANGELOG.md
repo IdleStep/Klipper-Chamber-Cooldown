@@ -7,6 +7,11 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+### Fixed
+- The refusal for a setting or profile value that is not a number reads correctly for one key
+  (`arrow_band must be a number`) and for several (`report_minutes, status_seconds must each be
+  a number`); it said `must be numbers` for both.
+
 ## [2.1.0] - 2026-10-27
 
 Requires Hardware Controls 2.0.0 or later.
