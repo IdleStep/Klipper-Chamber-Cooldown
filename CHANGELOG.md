@@ -7,6 +7,14 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+### Changed
+- The README is shorter and follows the order install, configure, use. Hardware Controls is one
+  prerequisite step that links to its own install steps, and only this repository's two
+  includes are shown. The phase rules, the idle timeout notes and the profile checks moved to the
+  new `docs/HOW_IT_WORKS.md`, and the message table to the new `docs/TROUBLESHOOTING.md`, which now
+  also lists the settings refusal, the skip notes and the idle timeout note. The test layout moved
+  to `CONTRIBUTING.md`. Wording that referred to other repositories was removed from `docs/DESIGN.md`.
+
 ## [2.1.1] - 2026-10-28
 
 Requires Hardware Controls 2.0.0 or later.
