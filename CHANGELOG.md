@@ -7,6 +7,10 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-29
+
+Requires Hardware Controls 2.0.0 or later.
+
 ### Changed
 - `START_COOLDOWN` warns when no chamber heater or chamber sensor is named in `_HARDWARE_VARS`:
   the cooldown skips hold and ramp and waits for the bed only, as before, but it said nothing.
@@ -261,7 +265,8 @@ Requires Hardware Controls 1.0.0 or later.
 
 First release of the five-phase chamber cooldown.
 
-[Unreleased]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v1.1.0...v2.0.0
