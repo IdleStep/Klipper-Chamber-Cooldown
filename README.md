@@ -85,8 +85,8 @@ role left empty is skipped.
 | `bed_heater` | The bed temperature. The rest phase turns the bed heater off. The default `"heater_bed"` is right for most printers. |
 | `exhaust_fan`, `external_pc`, `bed_fans` | The fans that run in the exhaust phase. |
 
-Set `chamber_heater` or `chamber_sensor`. With neither, the chamber reads as 0°C and only the
-bed decides when the cooldown completes. For example, for a printer with a
+Set `chamber_heater` or `chamber_sensor`. With neither, the cooldown skips hold and ramp, warns
+when it starts and waits for the bed only. For example, for a printer with a
 `[heater_generic chamber]` and a `[fan_generic exhaust_fan]`:
 
 ```ini

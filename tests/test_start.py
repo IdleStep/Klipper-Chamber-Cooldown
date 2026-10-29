@@ -160,6 +160,7 @@ class Start(CooldownTestCase):
         printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
         self.assertEqual(printer.state[VARS].phase, 0)
         self.assertTrue(self.responded(printer, 'Klipper-Hardware-Controls is not installed'))
+        self.assertTrue(self.responded(printer, 'Include its hardware.cfg first'))
 
     def test_the_loop_ticks_every_loop_seconds_setting(self):
         printer = Printer()
