@@ -15,7 +15,7 @@ was started or changed.
 | `A cooldown is already running (phase <n>/5), so nothing was started. Run COOLDOWN_RESET first to start another.` | Run `COOLDOWN_RESET`, then start again. |
 | `A cooldown is running, so the material was not selected. Run COOLDOWN_RESET first to change it.` | Run `COOLDOWN_RESET`, then select again. |
 | `Unknown cooldown profile: <name>. Known profiles: <list>. Cooldown not started.` | Use one of the listed names. |
-| `Invalid cooldown profile <name>: <reasons>. Cooldown not started.` | The profile's values are wrong. The message says which. See [Profiles](HOW_IT_WORKS.md#profiles). |
+| `Invalid cooldown profile <name>: <reasons>. Cooldown not started.` | The profile's values are wrong. The message says which. See [Profile checks](HOW_IT_WORKS.md#profile-checks). |
 | `chamber_cooled_temp in _COOLDOWN_SETTINGS must be a number. Cooldown not started.` | Fix the value in your `cooldown-local.cfg`. |
 | `Invalid _COOLDOWN_SETTINGS: <reasons>. Cooldown not started.` | A timing setting is not a number or is out of range. The message says which. Fix it in your `cooldown-local.cfg` or remove the override. |
 | `chamber_sensor in _HARDWARE_VARS has no temperature. Cooldown not started.` (or `bed_heater`) | The name is not a temperature device. Fix it in your `hardware_names.cfg`. |
@@ -52,6 +52,13 @@ was started or changed.
 | `The cooldown loop last ran <n> s ago. If the printer was not busy, it has stopped. Run COOLDOWN_RESET to clear it.` | `COOLDOWN_STATUS` shows this when the loop has not ticked for 60 s (`stall_seconds`). A busy printer can cause it too. Run `COOLDOWN_RESET`. |
 | `Cooldown complete` | Done. The heaters and all fans are off. |
 | `Cooldown reset` | `COOLDOWN_RESET` stopped it, from your print start, the idle timeout or by hand. |
+
+## Klipper reports an unknown command
+
+- For `START_COOLDOWN` or another cooldown command: the
+  `[include Klipper-Chamber-Cooldown/cooldown.cfg]` line is missing from `printer.cfg`, or Klipper
+  was not restarted after adding it.
+- For `RESPOND`: add a `[respond]` section to `printer.cfg`.
 
 ## Klipper reports an error about `SET_IDLE_TIMEOUT` at startup
 

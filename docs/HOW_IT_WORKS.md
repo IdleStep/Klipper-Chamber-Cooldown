@@ -30,13 +30,14 @@ The arrow compares each reading with the target it shows: `↑` above it, `→` 
 ## Completion and stops
 
 At any phase, the cooldown **completes** once the chamber and the bed are at or below
-`chamber_cooled_temp`. It turns off the chamber and bed heaters and every fan: exhaust, external_pc,
-bed fans and the part fan, including any fan you set yourself.
+`chamber_cooled_temp`. It turns off the chamber and bed heaters and the exhaust, external_pc, bed
+and part fans, even if you set one of them yourself.
 
 The cooldown **stops** without touching heaters or fans when you change the chamber target, the bed
-target, the exhaust fan speed or the bed fan speed by hand, or when a print starts. A print starts
-when Klipper's `print_stats.state` becomes `printing`; homing, probing and other moves do not stop
-the cooldown.
+target, the exhaust fan speed or the bed fan speed by hand, or when a print starts. Turning the
+chamber heater off to end a hold early counts as a change: the whole cooldown is cancelled instead
+of skipping ahead. A print starts when Klipper's `print_stats.state` becomes `printing`; homing,
+probing and other moves do not stop the cooldown.
 
 It **stops and turns the chamber and bed heaters off** when a value in `_COOLDOWN_VARS` is not
 valid or when the chamber or bed temperature cannot be read, because it can no longer judge the
@@ -44,11 +45,11 @@ temperatures.
 
 ## Idle timeout
 
-Klipper switches the heaters off when `[idle_timeout]` expires. A long hold or ramp could outlast
-it, so `START_COOLDOWN` raises the timeout to cover hold, ramp and rest plus 10 min
-(`idle_margin_seconds`), only when that is longer than the timeout in force. It restores the
-previous value when the heater is released in phase 3, on completion and on reset. The exhaust and
-chill phases are limited by the normal timeout.
+When `[idle_timeout]` expires, Klipper runs its idle gcode, which normally turns the heaters off.
+A long hold or ramp could outlast it, so `START_COOLDOWN` raises the timeout to cover hold, ramp
+and rest plus 10 min (`idle_margin_seconds`), only when that is longer than the timeout in force.
+It restores the previous value when the heater is released in phase 3, on completion and on reset.
+The exhaust and chill phases are limited by the normal timeout.
 
 The previous value is the one you set with `SET_IDLE_TIMEOUT`, which `idle_timeout_tracking.cfg`
 remembers (a pause, a resume or `DISABLE_TIMEOUT` that sets one is covered too). Otherwise it is the
@@ -66,7 +67,7 @@ can do that. If another file of yours already renames it, remove the
 `[include idle_timeout_tracking.cfg]` line from `cooldown.cfg`. The cooldown then restores the
 configured value. See [design decisions](DESIGN.md) for the limits.
 
-## Profiles
+## Profile checks
 
 `START_COOLDOWN` refuses a profile before it starts anything when:
 

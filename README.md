@@ -2,12 +2,14 @@
 
 [![Template regression checks](https://github.com/IdleStep/Klipper-Chamber-Cooldown/actions/workflows/templates.yml/badge.svg)](https://github.com/IdleStep/Klipper-Chamber-Cooldown/actions/workflows/templates.yml)
 
-Material-selected chamber cooldown for Klipper and Kalico: hold, ramp, rest, exhaust, chill.
+Five-phase chamber cooldown for Klipper and Kalico, chosen by filament material.
 
-After a print, the cooldown brings the chamber and bed down to a safe temperature in up to five
-phases. The filament material picks a profile: how long the chamber heater holds its target, how
-the target ramps down, and whether the exhaust fan runs. It ends by turning off the heaters and
-fans. Changing a chamber target, a bed target or an exhaust or bed fan speed by hand cancels it.
+After a print, `START_COOLDOWN` brings the chamber and bed down in five phases: **hold** the
+chamber target, **ramp** it down, **rest** with the heaters off, run the **exhaust** fans, and
+**chill** until both are at or below 35°C (the default). The filament material picks a profile,
+which decides how long the hold lasts, how the ramp goes and whether the exhaust runs. A phase the
+profile does not use is skipped. At the end the cooldown turns off the heaters and fans. Changing
+a chamber target, a bed target or an exhaust or bed fan speed by hand cancels it.
 
 ```
 🧊 Cooldown started with profile: HOLD_60M_COOL_EX
@@ -22,11 +24,13 @@ fans. Changing a chamber target, a bed target or an exhaust or bed fan speed by 
 ❄️ Cooldown complete
 ```
 
-The console output above is abridged. [How it works](docs/HOW_IT_WORKS.md) describes each phase.
+The console output above is shortened: the progress and temperature lines between the phases are
+left out. [How it works](docs/HOW_IT_WORKS.md) describes each phase.
 
 ## Requirements
 
-- Klipper or Kalico, with `[respond]` in your configuration.
+- Klipper or Kalico, with a `[respond]` section in your `printer.cfg`. It lets macros print to
+  the console, which is how the cooldown reports what it does.
 - [Klipper-Hardware-Controls](https://github.com/IdleStep/Klipper-Hardware-Controls) 2.0.0 or
   later. It provides the chamber heater and fan commands and the names of your devices.
 
@@ -50,8 +54,9 @@ The console output above is abridged. [How it works](docs/HOW_IT_WORKS.md) descr
    [include cooldown-local.cfg]
    ```
 
-   `cooldown-local.cfg` is your own file, outside the checkout, for overrides. Copy
-   [`examples/cooldown-local.cfg`](examples/cooldown-local.cfg) to start it, or leave the line out.
+   `cooldown-local.cfg` is your own file for overrides, next to your `printer.cfg` and outside
+   the checkout. Copy [`examples/cooldown-local.cfg`](examples/cooldown-local.cfg) there to start
+   it, or leave the line out.
 4. **Add the update entry** to `moonraker.conf`
    (also in [`examples/moonraker.conf`](examples/moonraker.conf)):
 
@@ -66,24 +71,32 @@ The console output above is abridged. [How it works](docs/HOW_IT_WORKS.md) descr
    managed_services: klipper
    ```
 
-5. Restart Klipper.
+5. Restart Moonraker and Klipper.
 
 ## Configure
 
-Cooldown reads these roles from `_HARDWARE_VARS`, which you set in your `hardware_names.cfg`.
-A role left empty is skipped.
+Cooldown uses these roles of `_HARDWARE_VARS`. You set them in your own `hardware_names.cfg`; a
+role left empty is skipped.
 
 | Role | Used for |
 |---|---|
-| `chamber_heater` | Hold and ramp targets. Without it, hold and ramp are skipped. |
-| `chamber_sensor` | Chamber temperature when there is no heater, as a full object name such as `"temperature_sensor chamber"`. |
-| `bed_heater` | Bed temperature. The default `"heater_bed"` is right for most printers. |
-| `exhaust_fan`, `external_pc`, `bed_fans` | Fans that run in the exhaust phase. |
+| `chamber_heater` | The heater whose target the hold keeps and the ramp lowers. Without it, hold and ramp are skipped. |
+| `chamber_sensor` | The chamber temperature when there is no heater, as a full object name such as `"temperature_sensor chamber"`. |
+| `bed_heater` | The bed temperature. The rest phase turns the bed heater off. The default `"heater_bed"` is right for most printers. |
+| `exhaust_fan`, `external_pc`, `bed_fans` | The fans that run in the exhaust phase. |
 
 Set `chamber_heater` or `chamber_sensor`. With neither, the chamber reads as 0°C and only the
-bed decides when the cooldown completes.
+bed decides when the cooldown completes. For example, for a printer with a
+`[heater_generic chamber]` and a `[fan_generic exhaust_fan]`:
 
-The one setting is the completion temperature. Put it in your `cooldown-local.cfg`:
+```ini
+[gcode_macro _HARDWARE_VARS]
+variable_chamber_heater: "chamber"
+variable_exhaust_fan: "exhaust_fan"
+```
+
+The one Cooldown setting is the completion temperature (default 35°C). The chamber and the bed
+must both reach it. Put it in your `cooldown-local.cfg`:
 
 ```ini
 [gcode_macro _COOLDOWN_SETTINGS]
@@ -99,9 +112,14 @@ variable_chamber_cooled_temp: 35
 | `COOLDOWN_STATUS` | Shows the profile, the phase and the time in the phase. |
 | `COOLDOWN_RESET` | Stops the cooldown and clears the selection. Heaters and fans stay as they are. |
 
-Select the material again after a reset. Nothing is kept across a Klipper restart.
+While a cooldown runs, `COOLDOWN_SELECT` and `START_COOLDOWN` print a message and change nothing.
+Run `COOLDOWN_RESET` first. Select the material again after a reset. Nothing is kept across a
+Klipper restart.
 
-To run it automatically, add guarded calls to your print macros:
+To test the install, run `COOLDOWN_SELECT MATERIAL=ASA` and `START_COOLDOWN` on a cold printer. It
+completes within seconds, because the chamber and bed are already at or below 35°C.
+
+To run it automatically, add calls to your print macros:
 
 | Where | Call |
 |---|---|
@@ -109,6 +127,9 @@ To run it automatically, add guarded calls to your print macros:
 | Material handling | `COOLDOWN_SELECT MATERIAL={material}` |
 | Print end and cancel | `START_COOLDOWN` |
 | Idle timeout and preheat macros | `COOLDOWN_RESET` |
+
+Call `COOLDOWN_RESET` after the macro sets its own heater targets. Guard every call like this, so
+the macro still works when Cooldown is not installed:
 
 ```jinja
 {% if 'gcode_macro START_COOLDOWN' in printer %}
@@ -127,7 +148,10 @@ To run it automatically, add guarded calls to your print macros:
 | `PASSIVE_ONLY` | - | - | - | off | DEFAULT, HIPS, PC, PCABS, PCABSCF, PCCF, PCTG, PETG, PETGCF |
 | `REST_5M_THEN_EX` | - | - | 5 min | 100% | TPU72D, TPU90A, TPU95A |
 
-Ramping profiles lower the chamber target by 1°C every 120 s.
+Hold is how long the chamber heater keeps its print target. Ramp to is the chamber target the ramp
+lowers it to, by 1°C every 120 s. Rest is a pause with the heaters and fans off before the exhaust.
+Exhaust is the fan speed. A dash means the profile skips that phase. The material name is not case
+sensitive, and a blank or unknown material uses `DEFAULT`.
 
 To change a profile or the material map, copy `variable_profiles` from
 [`profiles.cfg`](profiles.cfg) or `variable_materials` from [`materials.cfg`](materials.cfg) into
@@ -145,9 +169,9 @@ every entry you still want. The top of `profiles.cfg` explains each field.
 
 ## Updating
 
-Update while the printer is idle, from Moonraker or with `git pull` in the checkout. The
-`stable` channel follows tagged releases; use `channel: dev` to follow `main`. To roll back,
-check out the previous tag. Cooldown API 2 works with Hardware Controls 2.0.0 and later.
+Update from Moonraker while the printer is idle. The `stable` channel follows tagged releases; use
+`channel: dev` to follow `main`. To roll back, check out the previous tag in the checkout and
+restart Klipper. Cooldown 2.x works with Hardware Controls 2.0.0 and later.
 
 ## Contributing
 
