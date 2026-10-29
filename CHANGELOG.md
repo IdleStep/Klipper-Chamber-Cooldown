@@ -31,7 +31,7 @@ Requires Hardware Controls 2.0.0 or later.
 
 ### Changed
 - Tests: `tests/test_templates.py` (1259 lines, 98 tests) is split into one file per topic; it
-  keeps the shared simulated printer and helpers, which Klipper-Configs imports. No test changed.
+  keeps the shared simulated printer and helpers, which other test suites import. No test changed.
 - A description in `idle_timeout_tracking.cfg` and a comment in `profiles.cfg` fit in 100
   columns, as the shared lint now checks.
 
