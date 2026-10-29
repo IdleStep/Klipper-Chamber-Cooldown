@@ -167,12 +167,6 @@ every entry you still want. The top of `profiles.cfg` explains each field.
 - [Upgrading and migration](docs/MIGRATION.md)
 - [Changelog](CHANGELOG.md)
 
-## Updating
-
-Update from Moonraker while the printer is idle. The `stable` channel follows tagged releases; use
-`channel: dev` to follow `main`. To roll back, check out the previous tag in the checkout and
-restart Klipper. Cooldown 2.x works with Hardware Controls 2.0.0 and later.
-
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Report a safety problem as described in
