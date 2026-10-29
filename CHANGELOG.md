@@ -259,7 +259,7 @@ Requires Hardware Controls 1.0.0 or later.
 
 ## [1.0.0] - 2026-10-25
 
-Turbo's five-phase cooldown migrated from Klipper-Configs, behavior preserved.
+First release of the five-phase chamber cooldown.
 
 [Unreleased]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.1.1...HEAD
 [2.1.1]: https://github.com/IdleStep/Klipper-Chamber-Cooldown/compare/v2.1.0...v2.1.1
