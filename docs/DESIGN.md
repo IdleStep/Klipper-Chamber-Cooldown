@@ -35,13 +35,13 @@
   applies once the heater is released, counted from the fan command that starts
   the exhaust phase. A chill that takes longer than the timeout ends silently
   (the idle gcode turns the fans and heaters off and calls `COOLDOWN_RESET`).
-- HIPS and PCTG keep their PASSIVE_ONLY fallback from Turbo's old retraction table.
-  Changing intended profiles is separate work.
+- HIPS and PCTG map to PASSIVE_ONLY, the fallback profile. Changing the intended
+  profiles is separate work.
 - The print check reads `print_stats.state`, which only a file print sets (a
-  printer without a `print_stats` object has no check). It replaced a test of
-  `idle_timeout.state`, which can read `Printing` after a move, dwell or homing,
-  not only during a print. Klipper-Configs' PRINT_START calls `COOLDOWN_RESET`
-  first, so the check matters only for a print started some other way.
+  printer without a `print_stats` object has no check). `idle_timeout.state` would
+  not do: it can read `Printing` after a move, dwell or homing, not only during a
+  print. A print start macro that calls `COOLDOWN_RESET` first leaves the check for
+  a print started some other way.
 - The cooldown cannot read the idle timeout in force (a macro only sees the
   configured `[idle_timeout]` value). `idle_timeout_tracking.cfg` (included by
   `cooldown.cfg`) wraps `SET_IDLE_TIMEOUT` and remembers the last value set by
@@ -52,7 +52,7 @@
   The remembered value, like the timeout, is lost when Klipper restarts. Only
   one config can rename `SET_IDLE_TIMEOUT`: if yours already does, remove the
   `[include idle_timeout_tracking.cfg]` line from `cooldown.cfg`. The cooldown then
-  works from the configured value as before, replacing a timeout you set yourself
+  works from the configured value, replacing a timeout you set yourself
   and sometimes shortening a longer one during the hold and ramp.
 - Completion needs the bed reading at or below `chamber_cooled_temp`. Phase 3
   turns the bed heater off (with a `Bed heater turned off` message) so a bed
