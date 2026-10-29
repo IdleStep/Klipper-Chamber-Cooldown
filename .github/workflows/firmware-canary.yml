@@ -29,11 +29,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # The newest Hardware Controls too: this is what a new user installs.
+      # HARDWARE_CONTROLS_PATH below is where the harness is.
       - uses: actions/checkout@v7
         with:
           repository: IdleStep/Klipper-Hardware-Controls
           ref: main
-          path: hardware-controls
+          path: .hardware-controls
       - uses: actions/checkout@v7
         with:
           repository: ${{ matrix.repository }}
@@ -54,6 +55,7 @@ jobs:
           .klippy-env/bin/pip install -r .firmware/scripts/klippy-requirements.txt
       - run: python -m unittest discover -s tests -p test_klippy.py -v
         env:
+          HARDWARE_CONTROLS_PATH: .hardware-controls
           KLIPPER_DIR: .firmware
           KLIPPY_DICT: .firmware/out/klipper.dict
           KLIPPY_PYTHON: .klippy-env/bin/python

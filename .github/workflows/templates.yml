@@ -16,6 +16,8 @@ concurrency:
 # Hardware Controls supplies the test harness (tests/klipper_sim.py,
 # config_lint.py, klippy_batch.py). Taken from its latest main, so a change there that
 # breaks these checks shows up here at once. The oldest supported release, 2.0.0, is pinned below.
+# HARDWARE_CONTROLS_PATH is where the harness is; HARDWARE_CONTROLS_ROOT (api-2.0.0 job only) is
+# which Hardware Controls configs are tested.
 env:
   HARNESS_REF: main
 
@@ -39,7 +41,7 @@ jobs:
         with:
           repository: IdleStep/Klipper-Hardware-Controls
           ref: ${{ env.HARNESS_REF }}
-          path: hardware-controls
+          path: .hardware-controls
       - if: matrix.ref != ''
         uses: actions/checkout@v7
         with:
@@ -52,6 +54,7 @@ jobs:
       - run: pip install -r requirements-test.txt
       - run: python -m unittest discover -s tests -v
         env:
+          HARDWARE_CONTROLS_PATH: .hardware-controls
           HARDWARE_CONTROLS_ROOT: ${{ matrix.ref != '' && '.hardware-under-test' || '' }}
 
   # Load cooldown in real firmware (no hardware) and run tests/klippy/*.gcode.
@@ -74,7 +77,7 @@ jobs:
         with:
           repository: IdleStep/Klipper-Hardware-Controls
           ref: ${{ env.HARNESS_REF }}
-          path: hardware-controls
+          path: .hardware-controls
       - uses: actions/checkout@v7
         with:
           repository: ${{ matrix.repository }}
@@ -95,6 +98,7 @@ jobs:
           .klippy-env/bin/pip install -r .firmware/scripts/klippy-requirements.txt
       - run: python -m unittest discover -s tests -p test_klippy.py -v
         env:
+          HARDWARE_CONTROLS_PATH: .hardware-controls
           KLIPPER_DIR: .firmware
           KLIPPY_DICT: .firmware/out/klipper.dict
           KLIPPY_PYTHON: .klippy-env/bin/python

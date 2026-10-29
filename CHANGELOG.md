@@ -7,6 +7,12 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+### Changed
+- Tests find Klipper-Hardware-Controls beside the repository, or at `HARDWARE_CONTROLS_PATH`,
+  with an error that names the folder when it is missing. They do not look for a
+  `hardware-controls/` folder inside the repository any more, and CI checks it out to
+  `.hardware-controls`. `CONTRIBUTING.md` has the shorter setup.
+
 ## [2.2.0] - 2026-10-29
 
 Requires Hardware Controls 2.0.0 or later.
