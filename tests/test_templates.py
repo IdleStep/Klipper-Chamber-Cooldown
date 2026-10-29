@@ -4,7 +4,7 @@ The tests are in the other test_*.py files, one topic each. Run them all with:
     python -m unittest discover -s tests -v
 Needs Klipper-Hardware-Controls checked out as hardware-controls/ beside this
 README (its tests/klipper_sim.py is the simulator) and Jinja2 3.1.6.
-Klipper-Configs imports this module for Printer and wrap; keep those names.
+Other test suites import this module for Printer and wrap; keep those names.
 """
 import pathlib
 import sys
@@ -15,7 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT / 'hardware-controls' / 'tests'))
 
 import klipper_sim  # noqa: E402
-from klipper_sim import State, wrap  # noqa: E402,F401  (re-exported for Klipper-Configs)
+from klipper_sim import State, wrap  # noqa: E402,F401  (re-exported for other test suites)
 
 COOLDOWN_MODULES = ['profiles', 'materials', 'engine']
 # The Hardware Controls modules cooldown needs; cooldown.cfg's header lists the same three.

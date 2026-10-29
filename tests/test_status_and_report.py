@@ -72,7 +72,7 @@ class StatusAndReport(CooldownTestCase):
 
     def test_a_toolhead_without_a_clock_does_not_raise(self):
         printer = Printer()
-        # Klipper-Configs' simulated toolhead has no clock
+        # a simulated toolhead can have no clock
         printer.state['toolhead'] = wrap({'homed_axes': 'xyz'})
         printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
         printer.run('_COOLDOWN_LOOP')
