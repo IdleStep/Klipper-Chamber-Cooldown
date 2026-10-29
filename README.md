@@ -164,7 +164,6 @@ every entry you still want. The top of `profiles.cfg` explains each field.
   profile checks.
 - [Troubleshooting](docs/TROUBLESHOOTING.md): every message you may need to act on.
 - [Design decisions and known limits](docs/DESIGN.md)
-- [Upgrading and migration](docs/MIGRATION.md)
 - [Changelog](CHANGELOG.md)
 
 ## Contributing

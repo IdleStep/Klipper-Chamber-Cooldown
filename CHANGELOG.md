@@ -62,8 +62,8 @@ Requires Hardware Controls 2.0.0 or later.
 
 ## [2.0.0] - 2026-10-25
 
-Requires Hardware Controls 1.0.0 or later. Upgrade steps are in
-[docs/MIGRATION.md](docs/MIGRATION.md).
+Requires Hardware Controls 1.0.0 or later. Upgrading from 1.x means renaming the two
+variables listed under Changed in your `cooldown-local.cfg`.
 
 ### Changed
 - Breaking: `chamber_cooled_temp` moved from `_COOLDOWN_VARS` to the new `_COOLDOWN_SETTINGS`.
@@ -79,8 +79,7 @@ Requires Hardware Controls 1.0.0 or later. Upgrade steps are in
 - The HOLD and exhaust banners use `♨️` and `💨`; the old symbols are Unicode 15 and
   show as boxes on older browsers and KlipperScreen fonts.
 - README: the message table is now a troubleshooting table of the messages that need
-  an action. `docs/KNOWN_ISSUES.md` is `docs/DESIGN.md`, and `docs/MIGRATION.md`
-  covers upgrading and no longer carries the migration's working notes.
+  an action. `docs/KNOWN_ISSUES.md` is now `docs/DESIGN.md`.
 
 ### Fixed
 - A cooldown that stops because a state value is invalid or a chamber or bed
