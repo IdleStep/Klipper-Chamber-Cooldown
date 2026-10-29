@@ -4,14 +4,18 @@ Thank you for helping. Small, focused changes are easiest to review.
 
 ## Before you open a pull request
 
-The tests use the shared harness from Klipper-Hardware-Controls. Check it out as
-`hardware-controls` beside this README, then:
+The tests use the shared harness from Klipper-Hardware-Controls. Clone it beside this
+repository, then run the tests from the root of this one:
 
 ```sh
-git clone https://github.com/IdleStep/Klipper-Hardware-Controls hardware-controls
+git clone https://github.com/IdleStep/Klipper-Hardware-Controls ../Klipper-Hardware-Controls
 pip install -r requirements-test.txt
 python -m unittest discover -s tests -v
 ```
+
+`HARDWARE_CONTROLS_PATH` names the checkout that holds the test helpers when it is not beside
+this repository. `HARDWARE_CONTROLS_ROOT` picks which Hardware Controls config files the tests
+load; CI sets it to test against 2.0.0. You normally set neither.
 
 The tests:
 

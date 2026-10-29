@@ -2,20 +2,27 @@
 
 The tests are in the other test_*.py files, one topic each. Run them all with:
     python -m unittest discover -s tests -v
-Needs Klipper-Hardware-Controls checked out as hardware-controls/ beside this
-README (its tests/klipper_sim.py is the simulator) and Jinja2 3.1.6.
-Other test suites import this module for Printer and wrap; keep those names.
+Needs Klipper-Hardware-Controls checked out beside this repository (its tests/klipper_sim.py is
+the simulator) and Jinja2 3.1.6. HARDWARE_CONTROLS_PATH says where that checkout is. It is not
+HARDWARE_CONTROLS_ROOT, which klipper_sim reads to load the package configs from another checkout.
 """
+import os
 import pathlib
 import sys
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+HARDWARE_CONTROLS = pathlib.Path(
+    os.environ.get('HARDWARE_CONTROLS_PATH') or ROOT.parent / 'Klipper-Hardware-Controls').resolve()
+if not (HARDWARE_CONTROLS / 'tests' / 'klipper_sim.py').is_file():
+    raise RuntimeError('Klipper-Hardware-Controls not found at %s. Clone it beside this '
+                       'repository or set HARDWARE_CONTROLS_PATH (see CONTRIBUTING.md).'
+                       % HARDWARE_CONTROLS)
 # Appended, not prepended: Hardware Controls has test modules with the same names.
-sys.path.append(str(ROOT / 'hardware-controls' / 'tests'))
+sys.path.append(str(HARDWARE_CONTROLS / 'tests'))
 
 import klipper_sim  # noqa: E402
-from klipper_sim import State, wrap  # noqa: E402,F401  (re-exported for other test suites)
+from klipper_sim import State, wrap  # noqa: E402,F401
 
 COOLDOWN_MODULES = ['profiles', 'materials', 'engine']
 # The Hardware Controls modules cooldown needs; cooldown.cfg's header lists the same three.
