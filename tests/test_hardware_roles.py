@@ -103,6 +103,36 @@ class HardwareRoles(CooldownTestCase):
         printer.run('START_COOLDOWN', PROFILE='IMMEDIATE_EX')
         self.assertEqual(printer.state[VARS].phase, 1)
 
+    def test_no_chamber_device_warns_and_waits_for_the_bed(self):
+        printer = Printer()
+        printer.state.pop(CHAMBER)
+        printer.state[HARDWARE_VARS].chamber_heater = ''
+        printer.state[BED].temperature = 80.
+        printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
+        self.assertEqual(printer.state[VARS].phase, 1)
+        self.assertTrue(self.responded(printer, 'No chamber heater or chamber sensor found'))
+        self.run_until(printer, 5)
+        self.assertEqual(self.banner_numbers(printer), ['1/5', '2/5', '3/5', '4/5', '5/5'])
+        printer.run('_COOLDOWN_LOOP')
+        self.assertEqual(printer.state[VARS].phase, 5)
+        printer.state[BED].temperature = 30.
+        printer.run('_COOLDOWN_LOOP')
+        self.assertEqual(printer.state[VARS].phase, 0)
+
+    def test_a_sensor_name_with_no_object_counts_as_no_chamber_device(self):
+        printer = Printer()
+        printer.state.pop(CHAMBER)
+        printer.state[HARDWARE_VARS].chamber_heater = ''
+        printer.state[HARDWARE_VARS].chamber_sensor = 'temperature_sensor missing'
+        printer.run('START_COOLDOWN', PROFILE='IMMEDIATE_EX')
+        self.assertTrue(self.responded(printer, 'No chamber heater or chamber sensor found'))
+
+    def test_a_heater_or_a_sensor_does_not_warn_about_the_chamber(self):
+        for printer in (Printer(), self.sensor_printer(temperature=50.)):
+            printer.run('START_COOLDOWN', PROFILE='IMMEDIATE_EX')
+            self.assertEqual(printer.state[VARS].phase, 1)
+            self.assertFalse(self.responded(printer, 'No chamber heater or chamber sensor'))
+
 
 if __name__ == '__main__':
     unittest.main()

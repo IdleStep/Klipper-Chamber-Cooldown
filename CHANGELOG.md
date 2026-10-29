@@ -8,6 +8,11 @@ inside the engine and its messages are minor or patch releases.
 ## [Unreleased]
 
 ### Changed
+- `START_COOLDOWN` warns when no chamber heater or chamber sensor is named in `_HARDWARE_VARS`:
+  the cooldown skips hold and ramp and waits for the bed only, as before, but it said nothing.
+- The refusal for a missing Hardware Controls names `hardware.cfg`. It said to include its
+  settings, fans and chamber modules, and `settings.cfg` has been `hardware_names.cfg` since
+  Hardware Controls 2.0.0.
 - The README is shorter and follows the order install, configure, use. Hardware Controls is one
   prerequisite step that links to its own install steps, and only this repository's two includes
   are shown. The phase rules, the idle timeout notes and the profile checks moved to the new

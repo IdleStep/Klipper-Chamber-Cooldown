@@ -11,7 +11,7 @@ was started or changed.
 
 | Message | What to do |
 |---|---|
-| `Klipper-Hardware-Controls is not installed. Include its settings, fans and chamber modules first. Cooldown not started.` | Install [Hardware Controls](https://github.com/IdleStep/Klipper-Hardware-Controls#install) and include its `hardware.cfg`. |
+| `Klipper-Hardware-Controls is not installed. Include its hardware.cfg first. Cooldown not started.` | Install [Hardware Controls](https://github.com/IdleStep/Klipper-Hardware-Controls#install) and include its `hardware.cfg` before `cooldown.cfg`. |
 | `A cooldown is already running (phase <n>/5), so nothing was started. Run COOLDOWN_RESET first to start another.` | Run `COOLDOWN_RESET`, then start again. |
 | `A cooldown is running, so the material was not selected. Run COOLDOWN_RESET first to change it.` | Run `COOLDOWN_RESET`, then select again. |
 | `Unknown cooldown profile: <name>. Known profiles: <list>. Cooldown not started.` | Use one of the listed names. |
@@ -30,6 +30,7 @@ was started or changed.
 |---|---|
 | `Ramp step of <n> s runs as <m> s because the loop ticks every <s> s` | Nothing, or change the profile's step time to a multiple of the tick. |
 | `exhaust_fan_speed <speed> is below the fan minimum, so these fans run at their minimum instead: <fans>` | The fan would not turn at that speed. It runs at its `min_power` or `off_below`. |
+| `No chamber heater or chamber sensor found through _HARDWARE_VARS, so the cooldown waits for the bed only` | Neither `chamber_heater` nor `chamber_sensor` names a device in your `hardware_names.cfg`. Hold and ramp are skipped and the chamber reads as 0°C. Name a device to wait for the chamber too. |
 | `Idle timeout kept at <n> s while the cooldown runs, then set to <m> s` | You set a shorter timeout during the cooldown. It applies when the heater is released. |
 
 ## A phase was skipped or changed

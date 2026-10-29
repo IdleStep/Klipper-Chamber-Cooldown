@@ -18,7 +18,7 @@ import klipper_sim  # noqa: E402
 from klipper_sim import State, wrap  # noqa: E402,F401  (re-exported for Klipper-Configs)
 
 COOLDOWN_MODULES = ['profiles', 'materials', 'engine']
-# What README says cooldown needs from Hardware Controls.
+# The Hardware Controls modules cooldown needs; cooldown.cfg's header lists the same three.
 REQUIRED_HARDWARE_MODULES = ['hardware_names', 'fans', 'chamber']
 HARDWARE_VARS = 'gcode_macro _HARDWARE_VARS'
 VARS = 'gcode_macro _COOLDOWN_VARS'
