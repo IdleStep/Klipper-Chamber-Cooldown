@@ -5,6 +5,7 @@ from test_templates import (
     BED, BED_FANS, CHAMBER, COOLDOWN_MODULES, EXHAUST_FAN, EXTERNAL_PC, HARDWARE_VARS,
     REQUIRED_HARDWARE_MODULES, ROOT, SETTINGS, VARS, CooldownTestCase, Printer, wrap)
 import klipper_sim
+from klippy_batch import SUPPORT_DIR
 
 
 class HardwareRoles(CooldownTestCase):
@@ -14,7 +15,7 @@ class HardwareRoles(CooldownTestCase):
         printer = Printer(hardware=False, cooldown=False)
         for name in REQUIRED_HARDWARE_MODULES:
             printer.load(klipper_sim.module_path(name))
-        printer.load(klipper_sim.HARDWARE_LOCAL)
+        printer.load(SUPPORT_DIR / 'hardware_names.cfg')
         for name in COOLDOWN_MODULES:
             printer.load(ROOT / (name + '.cfg'))
         printer.run('START_COOLDOWN', PROFILE='IMMEDIATE_EX')
@@ -69,6 +70,7 @@ class HardwareRoles(CooldownTestCase):
         printer = Printer()
         printer.state.pop(EXHAUST_FAN)
         printer.state.pop(EXTERNAL_PC)
+        printer.state.pop(BED_FANS, None)
         printer.run('START_COOLDOWN', PROFILE='IMMEDIATE_EX')
         self.run_until(printer, 5)
         self.assertTrue(any('skipping exhaust' in command for command in printer.commands))
