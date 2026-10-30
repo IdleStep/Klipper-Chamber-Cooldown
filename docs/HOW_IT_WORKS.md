@@ -43,6 +43,20 @@ It **stops and turns the chamber and bed heaters off** when a value in `_COOLDOW
 valid or when the chamber or bed temperature cannot be read, because it can no longer judge the
 temperatures.
 
+## Several devices in one role
+
+These roles of `_HARDWARE_VARS` take several devices, as a name, a comma-separated string or a
+list (Hardware Controls 3.4.0 or later): `chamber_heater`, `exhaust_fan`, `external_pc` and
+`bed_fans`. The commands act on all of them. These take one device, a single name:
+`chamber_sensor` and `bed_heater`.
+
+- **Chamber heaters.** The cooldown reads the first heater that exists for the chamber
+  temperature and target, so list the heater that measures the chamber first. A change by hand to
+  the target of another heater is not noticed.
+- **Fans.** A change to the speed of any one fan of a role stops the cooldown. A speed below a
+  fan minimum is raised to the highest `min_power` (or `off_below`) among the fans of the role,
+  because all of them get the same speed.
+
 ## Idle timeout
 
 When `[idle_timeout]` expires, Klipper runs its idle gcode, which normally turns the heaters off.

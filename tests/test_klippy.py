@@ -5,7 +5,8 @@ tests/klippy/printer.cfg). Timers never fire in batch mode, so the
 _COOLDOWN_LOOP body is also defined as TEST_COOLDOWN_TICK for scripts to call.
 Scripts set chamber_cooled_temp below zero because heaters read 0°C here.
 tests/klippy_override/ runs against a printer whose local file copies both tables, to show
-that the later definition replaces the whole table.
+that the later definition replaces the whole table. tests/klippy_several/ runs against a printer
+whose roles name several devices.
 """
 import pathlib
 import unittest
@@ -16,6 +17,7 @@ from klipper_sim import HW_ROOT
 
 SCRIPTS = pathlib.Path(__file__).resolve().parent / 'klippy'
 OVERRIDE_SCRIPTS = pathlib.Path(__file__).resolve().parent / 'klippy_override'
+SEVERAL_SCRIPTS = pathlib.Path(__file__).resolve().parent / 'klippy_several'
 
 # What a user's cooldown-local.cfg holds after copying both tables and editing them.
 LOCAL_OVERRIDE = '''
@@ -41,6 +43,15 @@ variable_materials:
   }
 '''
 
+# Roles that name several devices, as a comma-separated string with a name that matches nothing.
+SEVERAL_DEVICES = '''
+[gcode_macro _HARDWARE_VARS]
+variable_chamber_heater: "missing_heater, chamber"
+variable_exhaust_fan: "exhaust_fan, external_pc, missing_fan"
+variable_bed_fans: ""
+variable_external_pc: ""
+'''
+
 
 def printer_cfg(local=''):
     return '\n'.join([
@@ -60,6 +71,12 @@ class RealKlipper(unittest.TestCase):
 
     def test_local_tables_replace_the_shipped_ones(self):
         run_script_files(self, OVERRIDE_SCRIPTS, printer_cfg(LOCAL_OVERRIDE), {
+            'Klipper-Hardware-Controls': HW_ROOT,
+            'Klipper-Chamber-Cooldown': test_templates.ROOT,
+        })
+
+    def test_roles_with_several_devices_reach_every_device_that_exists(self):
+        run_script_files(self, SEVERAL_SCRIPTS, printer_cfg(SEVERAL_DEVICES), {
             'Klipper-Hardware-Controls': HW_ROOT,
             'Klipper-Chamber-Cooldown': test_templates.ROOT,
         })

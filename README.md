@@ -78,12 +78,20 @@ left out. [How it works](docs/HOW_IT_WORKS.md) describes each phase.
 Cooldown uses these roles of `_HARDWARE_VARS`. You set them in your own `hardware_names.cfg`; a
 role left empty is skipped.
 
+Roles that take several devices, as a name, a comma-separated string or a list (this needs
+Hardware Controls 3.4.0 or later; an older version reads only a single name):
+
 | Role | Used for |
 |---|---|
-| `chamber_heater` | The heater whose target the hold keeps and the ramp lowers. Without it, hold and ramp are skipped. |
+| `chamber_heater` | The heaters whose target the hold keeps and the ramp lowers. The cooldown reads the first one that exists, so list the one that measures the chamber first. Without it, hold and ramp are skipped. |
+| `exhaust_fan`, `external_pc`, `bed_fans` | The fans that run in the exhaust phase. Every fan of a role gets the same speed. |
+
+Roles that take one device, a single name:
+
+| Role | Used for |
+|---|---|
 | `chamber_sensor` | The chamber temperature when there is no heater, as a full object name such as `"temperature_sensor chamber"`. |
 | `bed_heater` | The bed temperature. The rest phase turns the bed heater off. The default `"heater_bed"` is right for most printers. |
-| `exhaust_fan`, `external_pc`, `bed_fans` | The fans that run in the exhaust phase. |
 
 Set `chamber_heater` or `chamber_sensor`. With neither, the cooldown skips hold and ramp, warns
 when it starts and waits for the bed only. For example, for a printer with a
@@ -94,6 +102,16 @@ when it starts and waits for the bed only. For example, for a printer with a
 variable_chamber_heater: "chamber"
 variable_exhaust_fan: "exhaust_fan"
 ```
+
+With a second exhaust fan, name both. The two lines mean the same:
+
+```ini
+variable_exhaust_fan: "exhaust_fan, filter_fan"
+variable_exhaust_fan: ["exhaust_fan", "filter_fan"]
+```
+
+[How it works](docs/HOW_IT_WORKS.md#several-devices-in-one-role) says how the cooldown treats
+several devices.
 
 The one Cooldown setting is the completion temperature (default 35°C). The chamber and the bed
 must both reach it. Put it in your `cooldown-local.cfg`:

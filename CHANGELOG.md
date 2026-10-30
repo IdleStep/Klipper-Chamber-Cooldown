@@ -7,6 +7,19 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+Hardware Controls 2.0.0 or later is still enough, unless a role names several devices: that
+needs Hardware Controls 3.4.0.
+
+### Added
+- The roles `chamber_heater`, `exhaust_fan`, `external_pc` and `bed_fans` of `_HARDWARE_VARS`
+  may name several devices, as a comma-separated string or a list. The cooldown reads the first
+  chamber heater that exists, treats a change to the speed of any fan of a role as a change by
+  hand, and raises a speed below a fan minimum to the highest minimum among the role's fans.
+  A role with one name works as before. `docs/HOW_IT_WORKS.md` has the details, and the README
+  says which roles take several devices and which take one.
+- Tests: a real-firmware script, `tests/klippy_several`, runs the cooldown in Klipper and Kalico
+  with roles that name several devices and a name that matches nothing.
+
 ### Changed
 - Tests find Klipper-Hardware-Controls beside the repository, or at `HARDWARE_CONTROLS_PATH`,
   with an error that names the folder when it is missing. They do not look for a
