@@ -7,6 +7,8 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-10-31
+
 Hardware Controls 2.0.0 or later is still enough, unless a role names several devices: that
 needs Hardware Controls 3.4.0.
 
