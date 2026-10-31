@@ -29,8 +29,9 @@ The tests:
   hardware. It is skipped unless `KLIPPER_DIR`, `KLIPPY_DICT` and `KLIPPY_PYTHON` are set;
   the CI workflow shows how to build them.
 
-CI also runs the suite against Hardware Controls 2.0.0. None of this replaces a real thermal
-run on a printer.
+CI also runs the suite against Hardware Controls 2.0.0. The tests of roles that name several
+devices are skipped against a Hardware Controls older than 3.4.0, which reads a comma-separated
+role as one name. None of this replaces a real thermal run on a printer.
 
 Before you open the pull request:
 

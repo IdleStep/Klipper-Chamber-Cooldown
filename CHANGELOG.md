@@ -7,11 +7,31 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-10-31
+
+Hardware Controls 2.0.0 or later is still enough, unless a role names several devices: that
+needs Hardware Controls 3.4.0.
+
+### Added
+- The roles `chamber_heater`, `exhaust_fan`, `external_pc` and `bed_fans` of `_HARDWARE_VARS`
+  may name several devices, as a comma-separated string or a list. The cooldown reads the first
+  chamber heater that exists, treats a change to the speed of any fan of a role as a change by
+  hand, and raises a speed below a fan minimum to the highest minimum among the role's fans.
+  A role with one name works as before. `docs/HOW_IT_WORKS.md` has the details, and the README
+  says which roles take several devices and which take one.
+- Tests: a real-firmware script, `tests/klippy_several`, runs the cooldown in Klipper and Kalico
+  with roles that name several devices and a name that matches nothing. The tests of roles with
+  several devices are skipped against a Hardware Controls older than 3.4.0, so the check against
+  2.0.0 and a run before that release is merged still pass.
+
 ### Changed
 - Tests find Klipper-Hardware-Controls beside the repository, or at `HARDWARE_CONTROLS_PATH`,
   with an error that names the folder when it is missing. They do not look for a
   `hardware-controls/` folder inside the repository any more, and CI checks it out to
   `.hardware-controls`. `CONTRIBUTING.md` has the shorter setup.
+- Tests load only the three Hardware Controls modules cooldown needs. The check against Hardware
+  Controls 2.0.0 had failed on every test since Hardware Controls 3.3.0, because the test printer
+  loaded `hardware_check.cfg`, a module that release added.
 
 ## [2.2.0] - 2026-10-29
 
