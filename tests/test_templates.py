@@ -44,7 +44,15 @@ class Printer(klipper_sim.Printer):
     """Simulated printer with Hardware Controls and, optionally, cooldown loaded."""
 
     def __init__(self, hardware=True, cooldown=True, tracking=False):
-        super().__init__(hardware)
+        # Only the modules cooldown needs, so a release that lacks a newer one (hardware_check
+        # came in 3.3.0) can still be tested.
+        super().__init__(hardware=False)
+        if hardware:
+            for name in REQUIRED_HARDWARE_MODULES:
+                self.load(klipper_sim.module_path(name))
+            self.load(klipper_sim.HARDWARE_NAMES)
+        # Hardware Controls 2.0.0's PART_COOLING reads the part fan's section of the configuration.
+        self.state['configfile'].settings.setdefault('fan', State())
         if cooldown:
             for name in COOLDOWN_MODULES:
                 self.load(ROOT / (name + '.cfg'))
@@ -64,6 +72,23 @@ class Printer(klipper_sim.Printer):
                 self.idle_timeout = seconds
             return
         super().execute(line)
+
+
+def hardware_takes_several_devices():
+    """Whether the Hardware Controls under test splits a comma-separated role (3.4.0 and later).
+    Older releases read it as one name that matches nothing."""
+    printer = Printer(cooldown=False)
+    printer.state['fan_generic vent'] = wrap({'speed': 0.})
+    printer.state[HARDWARE_VARS].exhaust_fan = 'exhaust_fan, vent'
+    printer.run('EXHAUST_FAN', SPEED=0.5)
+    return printer.state['fan_generic vent'].speed == 0.5
+
+
+# Marks the tests of roles that name several devices. CI runs the suite against Hardware
+# Controls 2.0.0 too, and against its main before a release that adds the feature is merged.
+needs_several_devices = unittest.skipUnless(
+    hardware_takes_several_devices(), 'needs Hardware Controls 3.4.0 or later')
+
 
 class CooldownTestCase(unittest.TestCase):
     """Helpers shared by the test classes below."""

@@ -3,7 +3,8 @@ import unittest
 
 from test_templates import (
     BED, BED_FANS, CHAMBER, COOLDOWN_MODULES, EXHAUST_FAN, EXTERNAL_PC, HARDWARE_VARS,
-    REQUIRED_HARDWARE_MODULES, ROOT, SETTINGS, VARS, CooldownTestCase, Printer, wrap)
+    REQUIRED_HARDWARE_MODULES, ROOT, SETTINGS, VARS, CooldownTestCase, Printer,
+    needs_several_devices, wrap)
 import klipper_sim
 from klippy_batch import SUPPORT_DIR
 
@@ -62,6 +63,7 @@ class HardwareRoles(CooldownTestCase):
             printer.run('_COOLDOWN_LOOP')
         self.assertEqual(printer.state['fan_generic vent'].speed, 1)
 
+    @needs_several_devices
     def test_a_role_with_several_fans_runs_all_of_them_as_a_string_or_a_list(self):
         for value in ['exhaust_fan, vent , missing', ['exhaust_fan', 'vent', 'missing']]:
             with self.subTest(value=value):
@@ -74,6 +76,7 @@ class HardwareRoles(CooldownTestCase):
                 self.assertEqual(printer.state[VARS].phase, 5)
                 self.assertFalse(self.responded(printer, 'changed by hand'))
 
+    @needs_several_devices
     def test_a_change_to_the_second_fan_of_a_role_is_seen_as_a_change_by_hand(self):
         printer = self.printer_with_two_exhaust_fans()
         printer.run('START_COOLDOWN', PROFILE='IMMEDIATE_EX')
@@ -83,6 +86,7 @@ class HardwareRoles(CooldownTestCase):
         self.assertEqual(printer.state[VARS].phase, 0)
         self.assertTrue(self.responded(printer, 'changed by hand (exhaust fan speed)'))
 
+    @needs_several_devices
     def test_a_role_with_several_fans_uses_the_highest_minimum_among_them(self):
         printer = self.printer_with_two_exhaust_fans()
         settings = printer.state['configfile'].settings
@@ -100,6 +104,7 @@ class HardwareRoles(CooldownTestCase):
         self.assertIn('exhaust_fan (0.3)', warnings[0])
         self.assertEqual(printer.state[VARS].phase, 5)
 
+    @needs_several_devices
     def test_a_role_with_several_chamber_heaters_turns_them_all_off(self):
         for value in ['chamber, upper_chamber', ['chamber', 'upper_chamber']]:
             with self.subTest(value=value):
@@ -111,6 +116,7 @@ class HardwareRoles(CooldownTestCase):
                 self.assertEqual(printer.state['heater_generic upper_chamber'].target, 0)
                 self.assertFalse(self.responded(printer, 'changed by hand'))
 
+    @needs_several_devices
     def test_the_first_chamber_heater_that_exists_is_the_one_the_cooldown_reads(self):
         printer = self.printer_with_two_chamber_heaters('missing, upper_chamber, chamber')
         printer.state['heater_generic upper_chamber'].target = 48.

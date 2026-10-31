@@ -75,6 +75,7 @@ class RealKlipper(unittest.TestCase):
             'Klipper-Chamber-Cooldown': test_templates.ROOT,
         })
 
+    @test_templates.needs_several_devices
     def test_roles_with_several_devices_reach_every_device_that_exists(self):
         run_script_files(self, SEVERAL_SCRIPTS, printer_cfg(SEVERAL_DEVICES), {
             'Klipper-Hardware-Controls': HW_ROOT,
