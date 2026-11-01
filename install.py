@@ -156,12 +156,13 @@ class Installer:
             self.say("could not reach origin; keeping the version you have")
             return
         before = self.git("rev-parse", "HEAD")[1]
+        branch = self.git("rev-parse", "--abbrev-ref", "HEAD")[1]
+        if branch not in ("HEAD", "main"):
+            self.say("the clone is on the %s branch; not moving it" % branch)
+            return
         tags = release_tags(self.git("tag", "--list")[1]) if not self.args.dev else []
         if tags:
             target = tags[0]
-            if self.git("merge-base", "--is-ancestor", "HEAD", target)[0] != 0:
-                self.say("the clone is ahead of %s; not moving it" % target)
-                return
         else:
             target = "main"
         if before == self.git("rev-parse", ("origin/main" if target == "main" else target) + "^{commit}")[1]:
