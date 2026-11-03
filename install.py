@@ -51,6 +51,21 @@ def has_include(text, folder):
     return re.search(r"^\s*\[include\s+%s/" % re.escape(folder), text, re.M) is not None
 
 
+def include_index(lines, folder):
+    """The line number of the first include from a folder, or None."""
+    pattern = re.compile(r"^\s*\[include\s+%s/" % re.escape(folder))
+    return next((i for i, line in enumerate(lines) if pattern.match(line)), None)
+
+
+def order_notes(body, folder):
+    """Say so when Hardware Controls comes after this repository: this one reads its roles."""
+    own, hardware = include_index(body, folder), include_index(body, HARDWARE)
+    if own is None or hardware is None or hardware < own:
+        return []
+    return ["printer.cfg includes %s after %s; move it above, because %s reads its roles"
+            % (HARDWARE, folder, folder)]
+
+
 def edit_printer_cfg(text, folder):
     """Return (new text, notes): add the include above the SAVE_CONFIG block unless one is there."""
     lines = text.split("\n")
@@ -60,7 +75,7 @@ def edit_printer_cfg(text, folder):
     end = next((i for i, line in enumerate(lines) if line.startswith(SAVE_CONFIG)), len(lines))
     body, tail = lines[:end], lines[end:]
     if has_include("\n".join(body), folder):
-        return text, ["printer.cfg already includes %s" % folder]
+        return text, ["printer.cfg already includes %s" % folder] + order_notes(body, folder)
     while body and body[-1].strip() == "":
         body.pop()
     body += [""] + [BEGIN] + include_lines(folder) + [END]
@@ -95,6 +110,23 @@ def release_tags(output):
     return sorted(tags, key=lambda t: tuple(int(n) for n in t[1:].split(".")), reverse=True)
 
 
+# --- reading and writing the files ---
+
+def read_text(path):
+    """The file as it is, in UTF-8 and with its own line endings."""
+    with open(path, encoding="utf-8", newline="") as f:
+        return f.read()
+
+
+def write_text(path, text):
+    """Replace the file in one step, so a crash cannot leave it half written."""
+    temp = path + ".install-tmp"
+    with open(temp, "w", encoding="utf-8", newline="") as f:
+        f.write(text)
+    shutil.copymode(path, temp)
+    os.replace(temp, path)
+
+
 # --- the installer ---
 
 class Installer:
@@ -125,10 +157,9 @@ class Installer:
             sys.exit("This clone is not inside %s. Clone it there, so printer.cfg can include it:\n"
                      "    cd %s && git clone %s" % (self.config_dir, self.config_dir, DEFAULT_ORIGIN))
         if not remove and os.path.exists(self.printer_cfg):
-            with open(self.printer_cfg) as f:
-                if not has_include(f.read(), HARDWARE):
-                    sys.exit("printer.cfg does not include %s. Install it first: "
-                             "https://github.com/IdleStep/Klipper-Hardware-Controls#install" % HARDWARE)
+            if not has_include(read_text(self.printer_cfg), HARDWARE):
+                sys.exit("printer.cfg does not include %s. Install it first: "
+                         "https://github.com/IdleStep/Klipper-Hardware-Controls#install" % HARDWARE)
 
     def local_file(self, remove):
         """Create cooldown-local.cfg from the example, so the include finds a file. Uninstall keeps it."""
@@ -180,14 +211,15 @@ class Installer:
         if code != 0:
             print("Could not move the clone to %s: %s" % (target, out))
             return
+        if target != "main":
+            self.say("%s is checked out, so git shows a detached HEAD; that is how a release is followed" % target)
         if self.git("rev-parse", "HEAD")[1] != before:
             self.changed = True
 
     def edit_file(self, path, editor, label):
         if not os.path.exists(path):
             return None
-        with open(path) as f:
-            old = f.read()
+        old = read_text(path)
         new, notes = editor(old)
         for note in notes:
             self.say("%s: %s" % (label, note))
@@ -198,8 +230,7 @@ class Installer:
                 if not self.dry:
                     shutil.copy2(path, backup)
             if not self.dry:
-                with open(path, "w") as f:
-                    f.write(new)
+                write_text(path, new)
             self.changed = True
             return True
         return False

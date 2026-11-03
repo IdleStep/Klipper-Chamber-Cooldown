@@ -21,7 +21,9 @@ inside the engine and its messages are minor or patch releases.
   release, adds the includes to `printer.cfg`, creates `cooldown-local.cfg` from the example,
   adds the update section to `moonraker.conf`, and restarts Klipper. It stops when `printer.cfg`
   does not include Hardware Controls. The README keeps the manual steps. `tests/test_install.py`
-  covers its text edits.
+  covers its text edits. It reads and writes the files in UTF-8 and replaces them in one step, so a
+  crash cannot leave `printer.cfg` half written, and it says when Hardware Controls is included below
+  Cooldown.
 
 ## [2.3.0] - 2026-10-31
 
