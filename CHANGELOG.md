@@ -7,6 +7,15 @@ inside the engine and its messages are minor or patch releases.
 
 ## [Unreleased]
 
+### Fixed
+- A tick of the cooldown loop that cannot render no longer ends the loop with the heaters on.
+  Klipper renders a delayed gcode in full and ends its timer when that fails. `_COOLDOWN_LOOP`
+  now only arms the next tick and calls the new `_COOLDOWN_TICK`, which holds what the loop did
+  before. A `loop_seconds` that is not a number ticks every second, so the tick can turn the
+  heaters off. A tick that stops the cooldown cancels the next one, as before. Printed
+  messages and timing are unchanged; the next tick is now timed from the start of a tick, not
+  its end.
+
 ## [2.3.0] - 2026-10-31
 
 Hardware Controls 2.0.0 or later is still enough, unless a role names several devices: that

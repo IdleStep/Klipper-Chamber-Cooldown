@@ -159,6 +159,32 @@ class Stops(CooldownTestCase):
         self.assertTrue(any('Cooldown complete' in command for command in printer.commands))
         self.assertFalse(any('Cooldown reset' in command for command in printer.commands))
 
+    def test_the_next_tick_is_armed_before_the_tick_runs_so_a_failing_tick_cannot_end_the_loop(self):
+        printer = Printer()
+        printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
+        printer.delays.clear()
+        printer.templates['_COOLDOWN_TICK'] = printer.env.from_string('{ 1 / 0 }')
+        with self.assertRaises(ZeroDivisionError):
+            printer.run('_COOLDOWN_LOOP')
+        self.assertEqual(printer.delays['_COOLDOWN_LOOP'], 5)
+
+    def test_a_loop_seconds_that_is_not_a_number_still_arms_the_next_tick_every_second(self):
+        printer = Printer()
+        printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
+        printer.state[SETTINGS].loop_seconds = 'abc'
+        printer.templates['_COOLDOWN_TICK'] = printer.env.from_string('{ 1 / 0 }')
+        with self.assertRaises(ZeroDivisionError):
+            printer.run('_COOLDOWN_LOOP')
+        self.assertEqual(printer.delays['_COOLDOWN_LOOP'], 1)
+
+    def test_a_tick_pending_when_the_cooldown_was_reset_does_not_keep_the_loop_going(self):
+        printer = Printer()
+        printer.run('START_COOLDOWN', PROFILE='HOLD_60M_COOL_EX')
+        printer.run('COOLDOWN_RESET')
+        printer.run('_COOLDOWN_LOOP')
+        self.assertEqual(printer.state[VARS].phase, 0)
+        self.assertEqual(printer.delays['_COOLDOWN_LOOP'], 0)
+
 
 if __name__ == '__main__':
     unittest.main()
