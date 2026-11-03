@@ -16,6 +16,15 @@ inside the engine and its messages are minor or patch releases.
   messages and timing are unchanged; the next tick is now timed from the start of a tick, not
   its end.
 
+### Added
+- `install.py` installs or updates Cooldown from a clone: it moves the clone to the latest
+  release, adds the includes to `printer.cfg`, creates `cooldown-local.cfg` from the example,
+  adds the update section to `moonraker.conf`, and restarts Klipper. It stops when `printer.cfg`
+  does not include Hardware Controls. The README keeps the manual steps. `tests/test_install.py`
+  covers its text edits. It reads and writes the files in UTF-8 and replaces them in one step, so a
+  crash cannot leave `printer.cfg` half written, and it says when Hardware Controls is included below
+  Cooldown.
+
 ## [2.3.0] - 2026-10-31
 
 Hardware Controls 2.0.0 or later is still enough, unless a role names several devices: that

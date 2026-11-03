@@ -36,10 +36,43 @@ left out. [How it works](docs/HOW_IT_WORKS.md) describes each phase.
 
 ## Install
 
-1. **Install Hardware Controls.** Follow its
-   [install steps](https://github.com/IdleStep/Klipper-Hardware-Controls#install): include its
-   `hardware.cfg`, then name your devices in your own `hardware_names.cfg`. The devices Cooldown
-   needs are listed under [Configure](#configure).
+Install [Hardware Controls](https://github.com/IdleStep/Klipper-Hardware-Controls#install) first:
+include its `hardware.cfg`, then name your devices in your own `hardware_names.cfg`. The devices
+Cooldown needs are listed under [Configure](#configure). Then run this on your printer's host:
+
+```sh
+cd ~/printer_data/config && git clone https://github.com/IdleStep/Klipper-Chamber-Cooldown.git && python3 Klipper-Chamber-Cooldown/install.py
+```
+
+The installer is safe to run again, and running it again is how you update. In this order, it:
+
+1. stops if `printer.cfg` does not include Hardware Controls
+2. moves the clone to the latest release, or leaves it alone when it has local changes
+3. copies [`examples/cooldown-local.cfg`](examples/cooldown-local.cfg) to `cooldown-local.cfg`
+   next to your `printer.cfg`, unless that file exists
+4. backs up `printer.cfg` and `moonraker.conf` once, as `printer.cfg.before-klipper-chamber-cooldown`
+   and `moonraker.conf.before-klipper-chamber-cooldown`
+5. adds the two include lines to `printer.cfg`, after everything else and before the `SAVE_CONFIG`
+   block, unless `printer.cfg` already includes Cooldown
+6. adds an `[update_manager Klipper-Chamber-Cooldown]` section to `moonraker.conf`
+7. restarts Moonraker and Klipper, unless a print is running or paused
+
+Add these options to the command, for example `python3 Klipper-Chamber-Cooldown/install.py -n`:
+
+| Option | Effect |
+| --- | --- |
+| `-n`, `--dry-run` | Show what would change, and change nothing |
+| `-r`, `--no-restart` | Don't restart Moonraker and Klipper |
+| `-u`, `--uninstall` | Remove the includes and the update section the installer added. The clone and `cooldown-local.cfg` stay |
+| `--dev` | Follow `main` instead of the latest release, and write `channel: dev` |
+| `--no-update` | Don't move the clone to a newer version |
+| `-c`, `--config-dir` | Config directory, if it isn't the folder holding the clone or `~/printer_data/config` |
+| `--moonraker-url` | Moonraker's address, if it isn't `http://localhost:7125` |
+
+<details>
+<summary>Install by hand</summary>
+
+1. **Install Hardware Controls**, as above.
 2. **Clone this repository** next to your `printer.cfg`:
 
    ```sh
@@ -72,6 +105,8 @@ left out. [How it works](docs/HOW_IT_WORKS.md) describes each phase.
    ```
 
 5. Restart Moonraker and Klipper.
+
+</details>
 
 ## Configure
 
