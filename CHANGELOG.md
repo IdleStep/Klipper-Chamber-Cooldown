@@ -25,6 +25,13 @@ inside the engine and its messages are minor or patch releases.
   crash cannot leave `printer.cfg` half written, and it says when Hardware Controls is included below
   Cooldown.
 
+### Changed
+- Tests: `State` and `wrap` come from Hardware Controls' `tests/klipper_test_kit`, the simulator
+  that `klipper_sim` builds on, and the test printer handles `SET_IDLE_TIMEOUT_BASE` in the kit's
+  `handle`, the hook for a command the simulator has no effect for, instead of overriding
+  `execute`. The tests need a Hardware Controls `main` that has that folder. The check against
+  Hardware Controls 2.0.0 is unchanged: the harness is `main`, only the configs are 2.0.0.
+
 ## [2.3.0] - 2026-10-31
 
 Hardware Controls 2.0.0 or later is still enough, unless a role names several devices: that

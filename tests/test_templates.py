@@ -2,9 +2,10 @@
 
 The tests are in the other test_*.py files, one topic each. Run them all with:
     python -m unittest discover -s tests -v
-Needs Klipper-Hardware-Controls checked out beside this repository (its tests/klipper_sim.py is
-the simulator) and Jinja2 3.1.6. HARDWARE_CONTROLS_PATH says where that checkout is. It is not
-HARDWARE_CONTROLS_ROOT, which klipper_sim reads to load the package configs from another checkout.
+Needs Klipper-Hardware-Controls checked out beside this repository (its tests/klipper_test_kit is
+the simulator, and tests/klipper_sim.py loads the package into it) and Jinja2 3.1.6.
+HARDWARE_CONTROLS_PATH says where that checkout is. It is not HARDWARE_CONTROLS_ROOT, which
+klipper_sim reads to load the package configs from another checkout.
 """
 import os
 import pathlib
@@ -14,15 +15,15 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 HARDWARE_CONTROLS = pathlib.Path(
     os.environ.get('HARDWARE_CONTROLS_PATH') or ROOT.parent / 'Klipper-Hardware-Controls').resolve()
-if not (HARDWARE_CONTROLS / 'tests' / 'klipper_sim.py').is_file():
-    raise RuntimeError('Klipper-Hardware-Controls not found at %s. Clone it beside this '
-                       'repository or set HARDWARE_CONTROLS_PATH (see CONTRIBUTING.md).'
-                       % HARDWARE_CONTROLS)
+if not (HARDWARE_CONTROLS / 'tests' / 'klipper_test_kit' / '__init__.py').is_file():
+    raise RuntimeError('Klipper-Hardware-Controls with tests/klipper_test_kit not found at %s. '
+                       'Clone it beside this repository (an up-to-date main) or set '
+                       'HARDWARE_CONTROLS_PATH (see CONTRIBUTING.md).' % HARDWARE_CONTROLS)
 # Appended, not prepended: Hardware Controls has test modules with the same names.
 sys.path.append(str(HARDWARE_CONTROLS / 'tests'))
 
 import klipper_sim  # noqa: E402
-from klipper_sim import State, wrap  # noqa: E402,F401
+from klipper_test_kit import State, wrap  # noqa: E402,F401
 
 COOLDOWN_MODULES = ['profiles', 'materials', 'engine']
 # The Hardware Controls modules cooldown needs; cooldown.cfg's header lists the same three.
@@ -59,19 +60,15 @@ class Printer(klipper_sim.Printer):
         if tracking:
             self.load(ROOT / 'idle_timeout_tracking.cfg')
 
-    def execute(self, line):
+    def handle(self, name, args, tokens):
         # idle_timeout_tracking.cfg renames the built-in command to this one.
-        if line.split()[0].upper() == 'SET_IDLE_TIMEOUT_BASE':
-            self.commands.append(line)
-            args = dict(token.split('=', 1) for token in line.split()[1:] if '=' in token)
+        if name == 'SET_IDLE_TIMEOUT_BASE':
             try:
                 seconds = float(args['TIMEOUT'])
             except (KeyError, ValueError):
                 return  # Klipper would report the bad or missing value
             if seconds > 0:
                 self.idle_timeout = seconds
-            return
-        super().execute(line)
 
 
 def hardware_takes_several_devices():
